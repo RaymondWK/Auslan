@@ -1,0 +1,108 @@
+<!--
+user_messages/templates/user_messages/inbox.html
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+-->
+
+{% extends "base/layout.html" %}
+{% load static %}
+
+{% block title %}: Messages{% endblock %}
+
+{% block style %}
+  <link href="{% static 'user_messages/styles.css' %}?v={{ 30}}" rel="stylesheet">
+{% endblock %}
+
+{% block heading %}Messages{% endblock %}
+
+{% block content %}
+    <div class="dropdown d-lg-none my-2">
+        <button class="btn btn-secondary dropdown-toggle" type="button"
+                id="messagesMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+            ☰ Menu
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="messagesMenuButton">
+            <li><a class="dropdown-item messages-menu" id="new">New</a></li>
+            <li><a class="dropdown-item messages-menu" id="inbox">Inbox</a></li>
+            <li><a class="dropdown-item messages-menu" id="compose">Compose</a></li>
+            <li><a class="dropdown-item messages-menu" id="sent">Sent</a></li>
+            <li><a class="dropdown-item messages-menu" id="archived">Archived</a></li>
+            <li><a class="dropdown-item messages-menu" id="muted">Muted</a></li>
+        </ul>
+    </div>
+    <div class="d-none d-lg-flex gap-2">
+        <button class="btn btn-sm btn-outline-primary messages-menu" id="new">New</button>
+        <button class="btn btn-sm btn-outline-primary messages-menu" id="inbox">Inbox</button>
+        <button class="btn btn-sm btn-outline-primary messages-menu" id="compose">Compose</button>
+        <button class="btn btn-sm btn-outline-primary messages-menu" id="sent">Sent</button>
+        <button class="btn btn-sm btn-outline-primary messages-menu" id="archived">Archived</button>
+        <button class="btn btn-sm btn-outline-primary messages-menu" id="muted">Muted</button>
+    </div>
+    <hr>
+
+    {% if user.is_authenticated %}
+        <div id="notification" style="display:none"></div>
+
+        <div id="messages-view">
+        </div>
+
+        <div id="message-view">
+        </div>
+
+        <div id="muted-view">
+        </div>
+
+        <div id="compose-view">
+            <h3>New Message</h3>
+
+            <div id="result"></div>
+
+            <form id="compose-form">
+                <div class="form-group">
+                    From: <input disabled class="form-control" id="sender" value="{{ request.user.username }}">
+                </div>
+                <div class="form-group">
+                    To: <input id="compose-recipients" class="form-control">
+                </div>
+                <div class="form-group">
+                    <input class="form-control" id="compose-subject" placeholder="Subject">
+                </div>
+                <textarea class="form-control" id="compose-body" placeholder="Body"></textarea>
+                <input type="submit" class="submit btn btn-primary"/>
+            </form>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block script %}
+<script>
+  {% if user.is_authenticated %}
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+
+        for (let cookie of cookies) {
+          cookie = cookie.trim();
+          if (cookie.startsWith(name + "=")) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+
+      return cookieValue;
+    }
+    {% else %}
+    // Dummy function for unauthenticated users (avoids syntax errors)
+    function getCookie() { return null; }
+  {% endif %}
+</script>
+
+  {% if user.is_authenticated %}
+    <script>
+      const currentUserId = {{ request.user.id }};
+    </script>
+
+  <script src="{% static 'user_messages/inbox.js' %}?v={% now 'U' %}"></script>
+{% endif %}
+{% endblock %}

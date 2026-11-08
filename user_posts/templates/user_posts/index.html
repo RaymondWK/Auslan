@@ -1,0 +1,1342 @@
+<!--
+user_posts/templates/user_posts/index.html
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+-->
+
+{% extends "base/layout.html" %}
+{% load static %}
+
+{% block title %}: Posts{% endblock %}
+
+{% block style %}
+  <link href="{% static 'user_posts/styles.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block heading %}Posts{% endblock %}
+
+{% block content %}
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+
+      <!-- Hamburger button -->
+      <button class="navbar-toggler" type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#postsNavbar"
+        aria-controls="postsNavbar"
+        aria-expanded="false"
+        aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Collapsible menu -->
+      <div class="collapse navbar-collapse" id="postsNavbar">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+          {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link menu-item" data-menu="timeline" href="#">Timeline</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link menu-item" data-menu="new" href="#">New</a>
+            </li>
+          {% endif %}
+
+          <li class="nav-item">
+            <a class="nav-link menu-item" data-menu="all-posts" href="#">All Posts</a>
+          </li>
+
+          {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link menu-item" data-menu="following" href="#">Following</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link menu-item" data-menu="muted" href="#">Muted</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link menu-item" data-menu="blocked" href="#">Blocked</a>
+            </li>
+          {% endif %}
+
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  {% if user.is_authenticated %}
+    <div id="div-follows" style="display:block;">
+      Following: <span id="Following">8</span>
+      <br>
+        Followers: <span id="Followers">7</span>
+    </div>
+
+    <div id="new-post-view">
+      <h3>New Post:</h3>
+
+      <div id="notification" style="display:none;"></div>
+      <div id="result"></div>
+
+      <form id="create-form">
+        <textarea id="text" placeholder="What's on your mind?"></textarea>
+        <br>
+        <input type="submit" class="submit-create btn btn-primary"/>
+      </form>
+    </div>
+  {% endif %}
+
+  <div id="posts-view" style="display:block;">
+  </div>
+
+  <div id="posts-footer" style="display:none;">
+    <div id="page-info"></div>
+
+    <div id="pagination-controls" class="pagination-controls">
+      <button id="prev-btn" class="nav-btn";">Previous</button>
+      <button id="btn-1" class="page-btn">1</button>
+      <button id="btn-2" class="page-btn">2</button>
+      <button id="btn-3" class="page-btn">3</button>
+      <button id="btn-4" class="page-btn">4</button>
+      <button id="btn-5" class="page-btn">5</button>
+      <button id="btn-6" class="page-btn">6</button>
+      <button id="btn-7" class="page-btn">7</button>
+      <button id="next-btn" class="nav-btn">Next</button>
+    </div>
+  </div>
+
+  {% if user.is_authenticated %}
+    <div id="compose-view" style="display:none;">
+      <h3>Message</h3>
+
+      <div id="result"></div>
+
+      <form id="compose-form">
+        <div class="form-group">
+            From: <input disabled class="form-control" id="sender" value="{{ request.user.username }}">
+        </div>
+        <div class="form-group">
+            To: <input disabled class="form-control" id="compose-recipients">
+        </div>
+        <div class="form-group">
+            <input class="form-control" id="compose-subject" placeholder="Subject">
+        </div>
+        <textarea class="form-control" id="compose-body" placeholder="Body"></textarea>
+        <input type="submit" class="submit-compose btn btn-primary"/>
+      </form>
+    </div>
+  {% endif %}
+
+  <div id="muted-users-view">
+  </div>
+
+  <div id="blocked-users-view">
+  </div>
+
+{% endblock %}
+
+{% block script %}
+<script>
+  let currentMenu = 'all-posts';
+  let currentPage = 1;
+  let totalPages  = 0;
+
+  const nPaginationButtons = 7;
+
+  const postsBaseURL = "{% url 'user_posts:get_posts' 'DUMMY' %}".replace('DUMMY', '');
+
+  const urls = {
+    // URLs that require a dynamic parameter
+    get_posts: "{% url 'user_posts:get_posts' 'DUMMY' %}".replace('DUMMY/', ''),
+    like     : "{% url 'user_posts:like' 0 %}"           .replace('0/', ''),
+    follow   : "{% url 'user_posts:follow' 0 %}"         .replace('0/', ''),
+    post_edit: "{% url 'user_posts:post_edit' 0 %}"      .replace('0/', ''),
+    mute     : "{% url 'user_posts:mute' 0 %}"           .replace('0/', ''),
+    block    : "{% url 'user_posts:block' 0 %}"          .replace('0/', ''),
+
+    // URLs that do not require a parameter
+    create           : "{% url 'user_posts:create' %}",
+    get_follow_counts: "{% url 'user_posts:get_follow_counts' %}",
+    get_muted_users  : "{% url 'user_posts:get_muted_users' %}",
+    get_blocked_users: "{% url 'user_posts:get_blocked_users' %}",
+    send             : "{% url 'user_messages:send' %}",
+  };
+
+  document.addEventListener('DOMContentLoaded', function() {
+    {% if user.is_authenticated %}
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+          const cookies = document.cookie.split(";");
+
+          for (let cookie of cookies) {
+            cookie = cookie.trim();
+
+            // Does this cookie string begin with the name we want?
+            if (cookie.startsWith(name + "=")) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
+            }
+          }
+        }
+
+        return cookieValue;
+      }
+
+      const csrfToken = getCookie("csrftoken");
+    {% endif %}
+
+    {% if user.is_authenticated %}
+      load_posts('new');
+    {% else %}
+      load_posts('all-posts');
+    {% endif %}
+
+
+    const noteElement        = document.querySelector('#notification');
+    const resultElement      = document.querySelector('#result');
+    const postsViewElement   = document.querySelector("#posts-view");
+
+    {% if user.is_authenticated %}
+      const textElement = document.querySelector("#text");
+
+      textElement.focus();
+      textElement.setSelectionRange(0, 0);
+
+      function showNotification(msg) {
+        noteElement.innerText = msg;
+        noteElement.style.display = "block";
+        noteElement.style.opacity = "1";
+
+        // Force reflow so animation can restart
+        noteElement.style.animation = "none";
+        noteElement.offsetHeight; // trigger reflow
+        noteElement.style.animation = null;
+
+        noteElement.style.animationPlayState = "running";
+      }
+
+      noteElement.addEventListener("animationend", () => {
+        noteElement.style.display = "none"; // auto-hide when animation ends
+      });
+    {% endif %}
+
+    {% if user.is_authenticated %}
+      textElement.addEventListener("input", function () {
+        this.style.height = "auto"; // reset height
+        this.style.height = this.scrollHeight + "px"; // set to fit content
+      });
+    {% endif %}
+
+    {% if user.is_authenticated %}
+      function update_visual_follows(userId, to_follow) {
+        document.querySelector("#posts-view")
+          .querySelectorAll(`.follow-btn[data-user-id='${userId}']`)
+          .forEach(btn => {
+            btn.innerText = to_follow ? "Unfollow" : "Follow";
+            btn.classList.toggle("following", to_follow);
+          });
+      }
+    {% endif %}
+
+    {% if user.is_authenticated %}
+      function autoExpand(textarea) {
+        textarea.style.height = "auto"; // reset to shrink if text is removed
+        textarea.style.height = textarea.scrollHeight + "px"; // expand to fit content
+      }
+    {% endif %}
+
+    {% if user.is_authenticated %}
+      document.addEventListener("click", (event) => {
+        const target = event.target;
+
+        // Only act on certain buttons
+        if (!target.classList)
+          return;
+
+        if (target.classList.contains("posts-like")) {
+        if (   target.classList.contains("disabled")
+            || target.dataset.loading === "1") // Allows the first click through, because doesn't have a value yet
+          return;
+
+          target.dataset.loading = "1";
+          target.classList.add("disabled");
+          target.style.visibility = "hidden"; // Hide until processing completes
+
+          const postId       = target.dataset.postId;
+          const likesElement = target.parentElement.querySelector(".posts-likes");
+
+          const isLiked = target.innerText === "❤️";
+
+          // Optimistic toggle: Make the user happy to see something happening immediately
+          // It takes up to a second to get the response from the server - and I didn't like it!
+          if (isLiked) {
+            target.innerText = "🤍";
+            if (likesElement)
+              likesElement.innerText = parseInt(likesElement.innerText) - 1;
+          } else {
+            target.innerText = "❤️";
+            if (likesElement)
+              likesElement.innerText = parseInt(likesElement.innerText) + 1;
+          }
+
+          // Send request to server
+          fetch(`${urls['like']}${postId}/`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrfToken // Django expects 'X-CSRFToken'
+            },
+            body: JSON.stringify({
+              like: !isLiked
+            }) // !isLiked is the new state
+          })
+          .then(response => {
+            if (!response.ok)
+              throw new Error("Failed to update 'like'");
+
+            return response.json();
+          })
+          .then(data => {
+            // Trust server values to ensure consistency
+            target.innerText = data.liked_by_user ? "❤️" : "🤍";
+
+            if (likesElement)
+              likesElement.innerText = data.likes_count;
+          })
+          .catch(err => {
+            console.error("Error:", err);
+
+            // Roll back optimistic update
+            target.innerText = isLiked ? "❤️" : "🤍";
+
+            if (likesElement) {
+              likesElement.innerText = isLiked
+                ? parseInt(likesElement.innerText) + 1
+                : parseInt(likesElement.innerText) - 1;
+              }
+            })
+            .finally(() => {
+              target.dataset.loading = "0";
+              target.classList.remove("disabled"); // Enable clicking of the heart
+              target.style.visibility = "visible";
+            });
+        } else if (target.classList.contains("send-btn")) {
+          const composeView = document.getElementById('compose-view');
+
+          composeView.style.display = 'none';
+
+          const username = target.dataset.posterUsername;
+          const postDate = target.dataset.postDate;
+          const postText = target.dataset.postText;
+
+          const decodedPostText = postText.replace(/\\n/g, '\n');
+
+          var prefixedText = prefixLines([decodedPostText], '> ');
+
+          const subject = `Re: Your post on ${postDate}`;
+          const quoted = `\n\n----------------------------------\n${username} wrote:\n\n${prefixedText}`;
+
+          compose_message(username, subject, quoted);
+        } else if (target.classList.contains("follow-btn")) {
+          if (target.classList.contains("disabled"))
+            return;
+
+          const button = target;
+
+          button.classList.add("disabled");
+
+          // Optimistic toggle: Make the user happy to see something happening immediately
+          const wasFollowing = button.classList.contains("following");
+
+          button.classList.toggle("following");
+          button.innerText = wasFollowing ? "Follow" : "Unfollow";
+
+          const userId = button.dataset.userId;
+
+          // Send request to server
+          fetch(`${urls['follow']}${userId}/`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrfToken // Django expects 'X-CSRFToken'
+            },
+            body: JSON.stringify({
+              to_follow: !wasFollowing
+            })
+          })
+          .then(response => {
+            if (!response.ok)
+              throw new Error("Failed to update 'follow'");
+
+            return response.json();
+          })
+          .then(data => {
+            // Trust server values to ensure consistency
+
+            // Update all 'follow' buttons for this user in DOM
+
+            const followed = data.followed;
+
+            update_visual_follows(userId, followed);
+
+            // Update the "following" page if the user has unfollowed whilst on it
+            if (!followed && currentMenu === "following") {
+              load_posts("following");
+            }
+          })
+          .catch(err => {
+            console.error("Error:", err);
+
+            // Roll back optimistic update if server failed
+            if (wasFollowing) {
+              button.classList.add("following");
+              button.innerText = "Unfollow";
+            } else {
+              button.classList.remove("following");
+              button.innerText = "Follow";
+            }
+          })
+          .finally(() => {
+            button.classList.remove("disabled"); // Undo disabling of the button
+
+            button.blur(); // Remove keyboard focus
+          });
+        } else if (   target.classList.contains("mute-btn")
+                    || target.classList.contains("unmute-btn")) {
+          // This code will only execute if
+          // (a) the user is not muted,
+          //     AND is on either the 'all-posts' page or the 'following' page
+          // OR
+          // (b) the user is muted,
+          //     AND is on the 'muted' page
+
+          // if case (a):
+          //     The currentMenu page will be reloaded
+          //     so the button will not be present
+          // else case (b)
+          //     The 'muted' page will be reloaded
+          //     so the 'unmute' button will be present
+
+          if (target.classList.contains("disabled"))
+            return;
+
+          const button = target;
+
+          button.classList.add("disabled");
+
+          // Having a 'muted' button means the user was not muted
+          // Having an 'unmute' button means the user was muted
+
+          let to_mute;
+
+          if (currentMenu === "muted") {
+            to_mute = false;
+          } else {
+            to_mute = true;
+          }
+
+          const userId = button.dataset.userId;
+
+          // Send request to server
+          fetch(`${urls['mute']}${userId}/`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrfToken // Django expects 'X-CSRFToken'
+            },
+            body: JSON.stringify({
+              to_mute: to_mute
+            })
+          })
+          .then(response => {
+            if (!response.ok)
+              throw new Error("Failed to update 'muted'");
+
+            return response.json();
+          })
+          .then(data => {
+            // Trust server values to ensure consistency
+
+            const muted = data.muted;
+
+            // Update the "all-posts" or "following" page
+            if (currentMenu === "all-posts") {
+              load_posts("all-posts");
+            } else if (currentMenu === "following") {
+              load_posts("following");
+            } else if (currentMenu === "muted") {
+              load_muted_users();
+            }
+          })
+          .catch(err => {
+            console.error("Error:", err);
+          })
+          .finally(() => {
+            button.classList.remove("disabled"); // Undo disabling of the button
+
+            button.blur(); // Remove keyboard focus
+          });
+        } else if (   target.classList.contains("block-btn")
+                    || target.classList.contains("unblock-btn")) {
+          // This code will only execute if
+          // (a) the user is not blocked,
+          //     AND is on either the 'all-posts' page or the 'following' page
+          // OR
+          // (b) the user is blocked,
+          //     AND is on the 'blocked' page
+
+          // if case (a):
+          //     The currentMenu page will be reloaded
+          //     so the button will not be present
+          // else case (b)
+          //     The 'blocked' page will be reloaded
+          //     so the 'unblock' button will be present
+
+          if (target.classList.contains("disabled"))
+            return;
+
+          const button = target;
+
+          button.classList.add("disabled");
+
+          // Having a 'blocked' button means the user was not blocked
+          // Having an 'unblock' button means the user was blocked
+
+          let to_block;
+
+          if (currentMenu === "block") {
+            to_block = false;
+          } else {
+            to_block = true;
+          }
+
+          const userId = button.dataset.userId;
+
+          // Send request to server
+          fetch(`${urls['block']}${userId}/`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrfToken // Django expects 'X-CSRFToken'
+            },
+            body: JSON.stringify({
+              to_block: to_block
+            })
+          })
+          .then(response => {
+            if (!response.ok)
+              throw new Error("Failed to update 'blocked'");
+
+            return response.json();
+          })
+          .then(data => {
+            // Trust server values to ensure consistency
+            const blocked = data.blocked;
+
+            // Update the "all-posts" or "following" page
+            if (currentMenu === "all-posts") {
+              load_posts("all-posts");
+            } else if (currentMenu === "following") {
+              load_posts("following");
+            } else if (currentMenu === "block") {
+              load_blocked_users();
+            }
+          })
+          .catch(err => {
+            console.error("Error:", err);
+          })
+          .finally(() => {
+            button.classList.remove("disabled"); // Undo disabling of the button
+
+            button.blur(); // Remove keyboard focus
+          });
+        } else if (target.classList.contains("edit-btn")) {
+          if (target.classList.contains("disabled"))
+            return;
+
+          const button = target;
+
+          button.classList.add("disabled");
+
+          const postItem = button.closest(".post-item");
+          const textElement = postItem.querySelector(".posts-text");
+
+          if (!textElement) {
+            button.classList.remove("disabled");
+            return;
+          }
+
+          postItem._originalTextElement = textElement; // store reference to original text
+
+          const currentText = textElement.innerText;
+
+          // Create a textarea
+          const textarea = document.createElement("textarea");
+          textarea.value = currentText;
+          textarea.className = "edit-textarea";
+
+          // Set up auto-resize on input to the textarea
+          textarea.addEventListener("input", function() {
+            this.style.height = "auto";
+            this.style.height = this.scrollHeight + "px";
+          });
+
+          // auto-expand on input
+          textarea.addEventListener("input", () => autoExpand(textarea));
+
+          // expand once initially
+          autoExpand(textarea);
+
+          // Replace the post text with the textarea
+          textElement.replaceWith(textarea);
+          textarea.focus();
+          textarea.setSelectionRange(0, 0);
+
+          // Add Save/Cancel buttons
+          const saveBtn = document.createElement("button");
+          saveBtn.innerText = "Save";
+          saveBtn.className = "save-btn";
+
+          const cancelBtn = document.createElement("button");
+          cancelBtn.innerText = "Cancel";
+          cancelBtn.className = "cancel-btn";
+
+          const btnContainer = document.createElement("div");
+          btnContainer.appendChild(saveBtn);
+          btnContainer.appendChild(cancelBtn);
+
+          postItem.appendChild(btnContainer);
+
+          // Focus the textarea
+          textarea.focus();
+        } else if (target.classList.contains("cancel-btn")) {
+          if (target.classList.contains("disabled"))
+            return;
+
+          const cancelBtn = target;
+          cancelBtn.classList.add("disabled");
+
+          const postItem  = cancelBtn.closest(".post-item");
+          const textarea  = postItem.querySelector(".edit-textarea");
+          const original  = postItem._originalTextElement;
+
+          if (textarea && original) {
+            textarea.replaceWith(original); // restore the original text span
+          }
+
+          // remove both cancel and save buttons
+          if (cancelBtn) {
+            cancelBtn.remove();
+          }
+
+          const saveBtn = postItem.querySelector(".save-btn");
+          if (saveBtn) {
+            saveBtn.remove();
+          }
+
+          // re-enable the edit button
+          const editBtn = postItem.querySelector(".edit-btn");
+          if (editBtn) {
+            editBtn.classList.remove("disabled");
+          }
+        } else if (target.classList.contains("save-btn")) {
+          if (target.classList.contains("disabled"))
+            return;
+
+          const saveBtn  = target;
+          saveBtn.classList.add("disabled");
+
+          const postItem = saveBtn.closest(".post-item");
+
+          const textarea = postItem.querySelector(".edit-textarea");
+          const original = postItem._originalTextElement;
+          const editBtn  = postItem.querySelector(".edit-btn");
+
+          if (!textarea || !original) {
+            return;
+          }
+
+          const newText = textarea.value.trim();
+          const postId  = editBtn.dataset.postId;
+
+          // Send updated text to Django
+          fetch(`${urls['post_edit']}${postId}/`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrfToken // Django expects 'X-CSRFToken'
+            },
+            body: JSON.stringify({ text: newText })
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Update original span text
+              original.innerText = newText;
+
+              // Restore original span
+              textarea.replaceWith(original);
+            } else {
+              alert("Error saving post: " + data.error);
+            }
+          })
+          .finally(() => {
+            // Clean up buttons
+            const cancelBtn = postItem.querySelector(".cancel-btn");
+            if (cancelBtn) {
+              cancelBtn.classList.remove("disabled");
+              cancelBtn.remove();
+            }
+
+            if (saveBtn) {
+              saveBtn.classList.remove("disabled");
+              saveBtn.remove();
+            }
+
+            // re-enable the edit button
+            const editBtn = postItem.querySelector(".edit-btn");
+            if (editBtn) {
+              editBtn.classList.remove("disabled");
+            }
+          });
+        } else if (target.classList.contains("submit-create")) {
+          event.preventDefault(); // Prevent the 'submit' button for a form from submitting to a Python view
+
+          resultElement.innerHTML = '';
+
+          const text = textElement.value;
+
+          fetch(urls['create'], {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrfToken // Django expects 'X-CSRFToken'
+            },
+            body: JSON.stringify({
+              text: text
+            })
+          })
+          .then(response => response.json())
+          .then(result => {
+            if (result.message) {
+              showNotification(result.message)
+
+              // Clear out text field
+              document.querySelector("#text").value = "";
+              textElement.style.height = "3em";
+
+              load_posts(currentMenu);
+            } else if (result.error) {
+              resultElement.innerHTML = result.error;
+            }
+          });
+        } else if (target.classList.contains("submit-compose")) {
+          event.preventDefault(); // Prevent the 'submit' button for a form from submitting to a Python view
+
+          const recipients = document.querySelector("#compose-recipients").value;
+          const subject    = document.querySelector("#compose-subject")   .value;
+          const body       = document.querySelector("#compose-body")      .value;
+
+          fetch(urls['send'], {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify({ recipients, subject, body })
+          })
+          .then(response => response.json())
+          .then(result => {
+            if (result.message) {
+              alert("Message sent successfully!");
+
+              // Optionally clear or hide the compose form
+              document.querySelector("#compose-form").reset();
+              document.querySelector("#compose-view").style.display = "none";
+              postsViewElement.style.display = 'block';
+
+              load_posts(currentMenu, currentPage);
+            }
+            else if (result.error) {
+              alert("Error: " + result.error);
+            }
+          });
+        }
+      });
+    {% endif %}
+  });
+
+  // Make the last-chosen menu item 'active': CSS sets properties
+  function selectChosenMenuItem(chosenMenu) {
+    document.querySelectorAll('.menu-item').forEach(item => {
+      if (chosenMenu === item.dataset.menu) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
+  }
+
+  {% if user.is_authenticated %}
+    function processFollows(chosenMenu) {
+      const divFollowsElement = document.querySelector('#div-follows');
+
+      if (chosenMenu !== 'timeline') {
+        divFollowsElement.style.display = 'none';
+        return;
+      }
+
+      // Show the div because 'timeline' is chosen
+      divFollowsElement.style.display = 'block';
+
+      const followingElement = document.querySelector('#Following');
+      const followersElement = document.querySelector('#Followers');
+
+      fetch(urls['get_follow_counts'])
+        .then(async response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const contentType = response.headers.get("content-type");
+
+          if (!contentType || !contentType.includes("application/json")) {
+            const text = await response.text();
+            console.error("Expected JSON but got:", text);
+            throw new Error("Server did not return JSON");
+          }
+
+          return response.json();
+        })
+        .then(counts => {
+          followingElement.innerText = counts.following;
+          followersElement.innerText = counts.followers;
+        })
+        .catch(error => {
+          console.error('Error fetching follow counts:', error);
+
+          // fallback: clear or show "N/A"
+          followingElement.innerText = 'N/A';
+          followersElement.innerText = 'N/A';
+        });
+    }
+  {% endif %}
+
+  document.querySelectorAll('.menu-item').forEach(item => {
+    item.addEventListener('click', (event) => {
+      event.preventDefault(); // stop the link navigation for current SPA-style
+
+      const chosenMenu = item.dataset.menu;
+
+      const postsView        = document.querySelector ('#posts-view');
+      const postsFooter      = document.getElementById('posts-footer');
+      const divFollows       = document.getElementById('div-follows');
+      const newPostView      = document.getElementById('new-post-view');
+      const mutedUsersView   = document.getElementById('muted-users-view');
+      const blockedUsersView = document.getElementById('blocked-users-view');
+      const composeView      = document.getElementById('compose-view');
+
+      composeView.style.display = 'none';
+      postsFooter.style.display = 'none'; // Hide the footer before displaying posts
+
+      if (chosenMenu === "muted" || chosenMenu === "blocked") {
+        postsView.innerHTML = '';
+        divFollows .style.display = 'none';
+        newPostView.style.display = 'none';
+
+        if (chosenMenu === "muted") {
+          mutedUsersView  .style.display = 'block';
+          blockedUsersView.style.display = 'none';
+          load_muted_users(); // for the current user
+        } else if (chosenMenu === "blocked") {
+          mutedUsersView  .style.display = 'none';
+          blockedUsersView.style.display = 'block';
+          load_blocked_users(); // for the current user
+        }
+
+        newPostView.style.display = 'none';
+      } else {
+        mutedUsersView  .style.display = 'none';
+        blockedUsersView.style.display = 'none';
+
+        newPostView.style.display = 'block';
+
+        load_posts(chosenMenu); // This code is called when a specific menu item is chosen
+        // The footer is required only if there are posts, so is updated in 'load_posts()'
+      }
+
+      selectChosenMenuItem(chosenMenu); // highlight the clicked menu item
+    });
+  });
+
+  function getButtonNumbers(page, nButtons, nPages) {
+    nButtons = Math.min(nButtons, nPages);
+
+    const half = (nButtons + 1) / 2;
+
+    let first;
+
+    if (page <= half) {
+      first = 1;
+    } else if (page >= nPages - half + 1) {
+        first = nPages - nButtons + 1;
+    } else {
+      first = nButtons % 2 === 1
+        ? page - (nButtons - 1) / 2
+        : page - (nButtons - 2) / 2;
+    }
+
+    // Build array [first, first + 1, ..., first + nButtons - 1]
+    return Array.from({ length: nButtons }, (_, i) => first + i);
+  }
+
+  function updatePaginationControls(chosenMenu, page, totalPages, hasPrevious, hasNext) {
+    document.querySelector("#page-info").innerText = `Page ${page} / ${totalPages}`;
+
+    const prevBtn = document.querySelector("#prev-btn");
+    const nextBtn = document.querySelector("#next-btn");
+    const pageInfoBtn = document.querySelector("#page-info");
+    const postsFooter = document.getElementById('posts-footer');
+
+    prevBtn.disabled = !hasPrevious;
+    nextBtn.disabled = !hasNext;
+
+    if (totalPages > 0) {
+      postsFooter.style.display = 'block';
+
+      pageInfoBtn.style.visibility = "visible";
+      prevBtn.style.visibility     = "visible";
+      nextBtn.style.visibility     = "visible";
+
+      const buttonNumbers = getButtonNumbers(page, nPaginationButtons, totalPages)
+
+      // Loop over each pagination button
+      for (let i = 0; i < nPaginationButtons; ++i) {
+        const btn = document.getElementById(`btn-${i + 1}`);
+
+        if (i < buttonNumbers.length) {
+          btn.textContent = buttonNumbers[i]; // Set label as the page number
+
+          btn.style.display = 'inline-block'; // Make visible
+
+          // Assign click handler for that page
+          btn.onclick = () => load_posts(chosenMenu, buttonNumbers[i]);
+        } else {
+          btn.style.display = 'none'; // Hide unused buttons
+          btn.onclick       = null;
+        }
+      }
+
+      prevBtn.onclick = () => load_posts(chosenMenu, currentPage - 1);
+        nextBtn.onclick = () => load_posts(chosenMenu, currentPage + 1);
+    } else { // totalPages = 0
+      postsFooter.style.display = 'none'; // Hide the footer before displaying posts
+
+      pageInfoBtn.style.visibility = "hidden";
+      prevBtn.style.visibility     = "hidden";
+      nextBtn.style.visibility     = "hidden";
+    }
+  }
+
+  function load_posts(chosenMenu, page=1) {
+    currentMenu = chosenMenu;
+    currentPage = page;
+
+    selectChosenMenuItem(chosenMenu);
+
+    {% if user.is_authenticated %}
+      processFollows(chosenMenu);
+    {% endif %}
+
+    const postsView         = document.querySelector('#posts-view');
+    postsView.style.display = 'block'; // In case some code didn't tidy up
+
+    postsView.innerHTML = '';
+
+    for (let i = 0; i < nPaginationButtons; ++i) {
+      const btn = document.getElementById(`btn-${i + 1}`);
+      btn.style.display = 'none';
+    }
+
+    // Fetch posts
+    fetch(`${urls['get_posts']}${chosenMenu}/?page=${currentPage}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.total_pages === 0) {
+          document.querySelector("#page-info").innerText = "";
+
+          postsView.innerHTML += "<p id='no-posts-message'>No posts.</p>";
+          updatePaginationControls(chosenMenu, data.page, data.total_pages, data.has_previous, data.has_next);
+
+          return;
+        }
+
+        totalPages = data.total_pages;
+
+        // For each post, create a div
+        data.posts.forEach(post => {
+          const postDiv = document.createElement('div');
+
+          postDiv.className = "post-item"
+
+          // Process the display of the heart for this post
+          let countUnits;
+
+          {% if user.is_authenticated %}
+            let heartHTML;
+
+            if (!post.posted_by_user) {
+              const heart_char = post.liked_by_user ? "❤️" : "🤍";
+              heartHTML  = `<span class="posts-like" data-post-id="${post.id}">${heart_char}</span>`;
+              countUnits = "";
+            } else {
+              heartHTML = "";
+
+              if (post.likes_count === 1) {
+                countUnits = " like";
+              } else {
+                countUnits = " likes";
+              }
+            }
+          {% else %}
+            if (post.likes_count === 1)
+            {
+              countUnits = " like";
+            } else {
+              countUnits = " likes";
+            }
+          {% endif %}
+
+          {% if user.is_authenticated %}
+            // Process the display of the 'follow' button for this post
+            let followButtonHTML;
+
+            if (!post.posted_by_user) {
+              const followText = post.is_following ? "Unfollow" : "Follow";
+
+              followButtonHTML = `<button class="follow-btn ${post.is_following ? "following" : ""}"
+                                    data-user-id="${post.user_id}">
+                                    ${followText}
+                                  </button>
+                                 `;
+            } else {
+                followButtonHTML = "";
+            }
+          {% endif %}
+
+          {% if user.is_authenticated %}
+            // Process the display of the 'mute' button for this post
+            let muteButtonHTML;
+
+            if (!post.posted_by_user && (chosenMenu === 'all-posts' || chosenMenu === 'following')) {
+              muteButtonHTML = `<button class="mute-btn"
+                                  data-user-id="${post.user_id}">
+                                  Mute
+                                </button>
+                               `;
+            } else {
+              muteButtonHTML = "";
+            }
+          {% endif %}
+
+          {% if user.is_authenticated %}
+            // Process the display of the 'block' button for this post
+            let blockButtonHTML;
+
+            if (!post.posted_by_user && (chosenMenu === 'all-posts' || chosenMenu === 'following')) {
+              blockButtonHTML = `<button class="block-btn"
+                                   data-user-id="${post.user_id}">
+                                   Block
+                                 </button>
+                                `;
+            } else {
+              blockButtonHTML = "";
+            }
+          {% endif %}
+
+          {% if user.is_authenticated %}
+            // Process the display of the 'send' button for this post
+            let sendButtonHTML;
+
+            if (chosenMenu === 'timeline' || chosenMenu === 'all-posts' || chosenMenu === 'following') {
+              sendButtonHTML = `
+                <button class="send-btn" title="Send a message directly to: ${post.user}"
+                  data-poster-user-id ="${post.user_id}"
+                  data-poster-username="${post.user}"
+                  data-post-date      ="${post.timestamp}"
+                  data-post-text="${post.text}">
+                  📧
+                </button>
+              `;
+            } else {
+              sendButtonHTML = "";
+            }
+          {% endif %}
+
+          {% if user.is_authenticated %}
+            if (post.posted_by_user) {
+              editButtonHTML = `<button class="edit-btn"
+                                  data-user-id="${post.user_id}"
+                                  data-post-id="${post.id}">
+                                  Edit
+                                </button>
+                               `;
+            } else {
+              editButtonHTML = "";
+            }
+          {% endif %}
+
+          // Need to use userIsAuthenticated in Javascript
+          {% if user.is_authenticated %}
+            const userIsAuthenticated = true;
+          {% else %}
+            const userIsAuthenticated = false;
+          {% endif %}
+
+          let actionButtonsHTML = "";
+          postDiv.innerHTML = "NIY";
+
+          if (userIsAuthenticated) {
+            if (post.posted_by_user) {
+              // Logged-in user viewing their own post
+              // Need:
+              //     1. username, send-btn
+              //     2. edit-btn
+              //     3. text
+              //     4. timestamp
+              //     5. count
+
+              postDiv.innerHTML = `
+                <div class="posts-header">
+                  <span class="posts-username">${post.user}</span>
+                  ${sendButtonHTML ? `<span class="send-row">${sendButtonHTML}</span>` : ""}
+                </div>
+                <div class="edit-row">${editButtonHTML}</div>
+                <div class="posts-text">${post.text}</div>
+                <div class="posts-timestamp">${post.timestamp}</div>
+                ${heartHTML}
+                <span class="posts-likes" data-likes_count="${post.likes_count}">${post.likes_count}</span>
+                ${countUnits}
+              `;
+            } else {
+              // Logged-in user viewing someone else's post
+              // Need:
+              //     1. username, send-btn, follow-btn, mute-btn, block-btn
+              //     2. text
+              //     3. timestamp
+              //     4. like (heart), count
+
+              postDiv.innerHTML = `
+                <div class="posts-header">
+                  <span class="posts-username">${post.user}</span>
+                  ${sendButtonHTML   ? `<span class="send-row">${sendButtonHTML}</span>` : ""}
+                  ${followButtonHTML ? `<span class="follow-row">${followButtonHTML}</span>` : ""}
+                  ${muteButtonHTML   ? `<span class="mute-row">${muteButtonHTML}</span>` : ""}
+                  ${blockButtonHTML  ? `<span class="block-row">${blockButtonHTML}</span>` : ""}
+                </div>
+                <div class="posts-text">${post.text}</div>
+                <div class="posts-timestamp">${post.timestamp}</div>
+                ${heartHTML}
+                <span class="posts-likes" data-likes_count="${post.likes_count}">${post.likes_count}</span>
+                ${countUnits}
+              `;
+            }
+          } else {
+            // Non-logged-in user
+            // Need:
+            //     1. username
+            //     2. text
+            //     3. timestamp
+            //     4. count with units
+
+            postDiv.innerHTML = `
+              <div class="posts-header">
+                <span class="posts-username">${post.user}</span>
+              </div>
+              <div class="posts-text">${post.text}</div>
+              <div class="posts-timestamp">${post.timestamp}</div>
+              <span class="posts-likes" data-likes_count="${post.likes_count}">${post.likes_count}</span>
+              ${countUnits}
+            `;
+          }
+
+          postsView.appendChild(postDiv);
+        }); // End: for each post
+
+        updatePaginationControls(chosenMenu, data.page, data.total_pages, data.has_previous, data.has_next);
+      }); // End of: .then(data ...)
+    // fetch has finished
+
+    {% if user.is_authenticated %}
+      const textElement = document.querySelector("#text");
+
+      textElement.focus();
+      textElement.setSelectionRange(0, 0);
+    {% endif %}
+  } // End of: function load_posts()
+
+  {% if user.is_authenticated %}
+    function load_muted_users() {  // for the current user
+      currentMenu = "muted";
+
+      const mutedUsersView = document.getElementById('muted-users-view');
+      mutedUsersView.innerHTML = '';
+
+      // Fetch muted users
+      fetch(`${urls['get_muted_users']}`)
+        .then(response => response.json())
+        .then(data => {
+          if (!data.muted_users || data.muted_users.length === 0) {
+            mutedUsersView.innerHTML += "<p id='no-users-message'>No muted users.</p>";
+            return;
+          }
+
+          // For each user, create a div
+          data.muted_users.forEach(user => {
+            const userDiv = document.createElement('div');
+
+            userDiv.className = "user-item"
+
+            // Process the display of the 'unmute' button for this post
+            let unmuteButtonHTML;
+
+            unmuteButtonHTML = `<button class="unmute-btn"
+                                  data-user-id="${user.user_id}">
+                                  Unmute
+                                </button>
+                               `;
+
+            {% if user.is_authenticated %}
+              const userIsAuthenticated = true;
+            {% else %}
+              const userIsAuthenticated = false;
+            {% endif %}
+
+            let actionButtonsHTML = "";
+
+            actionButtonsHTML = `
+              <span class="user-actions">
+                ${unmuteButtonHTML ? `<span class="mute-row">${unmuteButtonHTML}</span>` : ""}
+              </span>
+              <br>
+            `;
+
+            userDiv.innerHTML = `
+              <span class="muted-username">${user.username}</span>
+              ${actionButtonsHTML}
+              <span class="muted_at-timestamp">Muted: ${user.muted_at}</span><br>
+            `;
+
+            mutedUsersView.appendChild(userDiv);
+          }); // End of: data.muted_users.forEach(user => {
+        }); // End of: .then
+    } // End of: function load_muted_users()
+
+    function load_blocked_users() {  // for the current user
+      currentMenu = "block";
+
+      const blockedUsersView = document.getElementById('blocked-users-view');
+      blockedUsersView.innerHTML = '';
+
+      // Fetch blocked users
+      fetch(`${urls['get_blocked_users']}`)
+        .then(response => response.json())
+        .then(data => {
+          if (!data.blocked_users || data.blocked_users.length === 0) {
+            blockedUsersView.innerHTML += "<p id='no-users-message'>No blocked users.</p>";
+            return;
+          }
+
+          // For each user, create a div
+          data.blocked_users.forEach(user => {
+            const userDiv = document.createElement('div');
+
+            userDiv.className = "user-item"
+
+            // Process the display of the 'unblock' button for this post
+            let unblockButtonHTML;
+
+            unblockButtonHTML = `<button class="unblock-btn"
+                                  data-user-id="${user.user_id}">
+                                  Unblock
+                                 </button>
+                                `;
+
+            {% if user.is_authenticated %}
+              const userIsAuthenticated = true;
+            {% else %}
+              const userIsAuthenticated = false;
+            {% endif %}
+
+            let actionButtonsHTML = "";
+
+            actionButtonsHTML = `
+              <span class="user-actions">
+                ${unblockButtonHTML ? `<span class="block-row">${unblockButtonHTML}</span>` : ""}
+              </span>
+              <br>
+            `;
+
+            userDiv.innerHTML = `
+              <span class="blocked-username">${user.username}</span>
+              ${actionButtonsHTML}
+              <span class="blocked_at-timestamp">Blocked: ${user.blocked_at}</span><br>
+            `;
+
+            blockedUsersView.appendChild(userDiv);
+          }); // End of: data.blocked_users.forEach(user => {
+        }); // .then(data => {
+    }
+  {% endif %}
+
+  {% if user.is_authenticated %}
+    function compose_message(to, subject = '', post_text = '') {
+      // Show compose view and hide other views
+
+      const divFollows       = document.getElementById('div-follows');
+      const newPostView      = document.getElementById('new-post-view');
+      const postsView        = document.querySelector ('#posts-view');
+      const postsFooter      = document.getElementById('posts-footer');
+      const mutedUsersView   = document.getElementById('muted-users-view');
+      const blockedUsersView = document.getElementById('blocked-users-view');
+      const composeView      = document.getElementById('compose-view');
+      const result           = document.getElementById('result');
+
+      divFollows      .style.display = 'none';
+      newPostView     .style.display = 'none';
+      postsView       .style.display = 'none';
+      postsFooter     .style.display = 'none';
+      mutedUsersView  .style.display = 'none';
+      blockedUsersView.style.display = 'none';
+      result          .style.display = 'block';
+      composeView     .style.display = 'block';
+
+      result.innerHTML = '';
+
+      const newRecipients = document.getElementById('compose-recipients');
+      const newSubject    = document.getElementById('compose-subject');
+      const newBody       = document.getElementById('compose-body');
+
+      // Set or clear out composition fields
+
+      newRecipients.value = to;
+      newSubject   .value = subject;
+      newBody      .value = post_text;
+
+      // Set focus to the first field that is editable
+      if (subject !== '') {
+        // Move cursor to start of the first line
+        newBody.selectionStart = newBody.selectionEnd = 0;
+        newBody.focus();
+      } else {
+        newSubject.focus();
+      }
+    }
+  {% endif %}
+
+  {% if user.is_authenticated %}
+    function prefixLines(text, prefix) {
+      return String(text).replace(/^/gm, prefix);
+    }
+  {% endif %}
+</script>
+
+{% endblock %}

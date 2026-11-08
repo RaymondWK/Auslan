@@ -1,0 +1,149 @@
+<!--
+fs/templates/fs/memory.html
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+-->
+
+{% extends "fs/layout.html" %}
+{% load static %}
+
+{% block title %}: Trainer: Memory Game{% endblock %}
+
+{% block fs_style %}
+    <link rel="stylesheet" href="{% static 'fs/css/memory.css' %}">
+{% endblock %}
+
+{% block fs_content %}
+  <h5>Memory (Pairs) Game
+    <span id="memory-info"
+        tabindex="0"
+        class="ms-2 text-primary"
+        role="button"
+        data-bs-toggle="popover"
+        data-bs-trigger="focus"
+        data-bs-html="true"
+        data-bs-container="body"
+        title="The Value in Playing <i>FS Memory</i>">
+        ℹ️
+    </span>
+    <span id="memory-best-scores-info"
+        tabindex="1"
+        class="ms-2 text-primary"
+        role="button"
+        data-bs-toggle="popover"
+        data-bs-trigger="focus"
+        data-bs-html="true"
+        data-bs-container="body"
+        title="Best Scores and Times">
+        ℹ️
+    </span>
+  </h5>
+
+  <label for="card-size-slider" class="input-label">Card size:</label>
+  <input type="range" id="card-size-slider" min="48" max="192" value="64">
+  <span id="image-width">64</span>
+
+  <div id="hand-image">
+    <img id="test-image" src="{% static 'fs/letters/th_A.jpg' %}" alt="Finger-spelled letter A">
+  </div>
+
+  {% if not user.is_authenticated %}
+    <div>
+      <span id="login-required" style="color: red;">Login required to use the <i>Pairs</i> and <i>Shape</i> options</span>
+    </div>
+  {% endif %}
+  <div class="memory-container p-0 container-fluid">
+    <div id="all-game-options">
+      <div class="controls mb-2">
+        <label for="pair-count" class="input-label">Pairs:</label>
+        {% if user.is_authenticated %}
+          <input id="pair-count" type="number" min="2" max="26" value="6">
+        {% else %}
+          <input id="pair-count" type="number" min="2" max="2" value="2">
+        {% endif %}
+        <label for="auto-shape" class="input-label">Auto-shape</label>
+        <input id="auto-shape" title="Checked: Use the max number of columns that fits the screen width.  Unchecked: Use the selected shape." type="checkbox" checked>
+
+        <label for="grid-shape" class="input-label">Shape:</label>
+        <select id="grid-shape">
+        </select>
+      </div>
+      <div class="controls mb-2">
+        <label>
+          <input id="mode-solitaire" type="radio" name="mode" value="solitaire" checked> Solitaire
+        </label>
+        <label>
+          <input id="mode-computer" type="radio" name="mode" value="computer"> Computer Opponent
+        </label>
+      </div>
+    </div>
+
+    <div id="computer-standard" class="mb-2">
+      <span class="computer-title">Computer Standard:&nbsp&nbsp</span>
+      <label>
+        <input id="beginner" type="radio" name="level" value="beginner" checked> <span class="computer-level">Beginner</span>
+      </label>
+      <label style="margin-left:10px;">
+        <input id="intermediate" type="radio" name="level" value="intermediate"> <span class="computer-level">Intermediate</span>
+      </label>
+      <label style="margin-left:10px;">
+        <input id="advanced" type="radio" name="level" value="advanced"> <span class="computer-level">Advanced</span>
+      </label>
+      <label style="margin-left:10px;">
+        <input id="expert" class="computer-level" type="radio" name="level" value="expert"> <span class="computer-level">Expert</span>
+      </label>
+    </div>
+
+    <div id="timer-settings" class="mb-2">
+      <label>
+        <input id="untimed-turns" type="radio" name="timed-moves" value="not-timed" checked> Untimed
+      </label>
+      <label style="margin-left:10px;">
+        <input id="lose-turn" type="radio" name="timed-moves" value="lose-turn"> Lose turn
+      </label>
+      <label style="margin-left:10px;">
+        <input id="random-turn" type="radio" name="timed-moves" value="random-turn"> Random turn
+      </label>
+
+      <label class="input-label" style="margin-left:1rem;">Time per move (sec):&nbsp<input id="move-time" type="number" min="1" max="60" value="10"></label>
+    </div>
+
+    <div class="d-flex align-items-center gap-3">
+      <button id="start-btn" class="btn btn-primary">Start</button>
+      <div id="turn-container">
+        <span id="current-turn-label">Current Turn: </span>
+        <span id="current-turn"></span>
+      </div>
+    </div>
+
+    <div id="stats" class="mb-2">
+      <span class="stats-label">Matches:&nbsp</span><span id="matches">0</span> |
+      <span class="stats-label">Score:&nbsp</span><span id="score">0</span> |
+      <span class="stats-label">Moves:&nbsp</span><span id="moves">0</span> |
+      <span class="stats-label">Accuracy:&nbsp</span><span id="accuracy">0</span> |
+      <span class="stats-label">Time:&nbsp</span><span id="timer">00:00</span>
+    </div>
+
+    <div id="best-stats" class="mb-2">
+      <span class="stats-label" id="high-score-label">High-score:&nbsp</span><span id="high-score">0</span>
+      <span class="stats-label" id="low-moves-label">Low-moves:&nbsp</span><span id="low-moves">0</span>
+      <span class="stats-label" id="high-accuracy-label">High-accuracy:&nbsp</span><span id="high-accuracy">0</span>
+      <span class="stats-label" id="fastest-time-label">Fastest-time:&nbsp</span><span id="fastest-time">0</span>
+    </div>
+
+    <div id="memory-grid" class="memory-grid cols-4" aria-live="polite"></div>
+
+    <div id="popup-msg">Shape adjusted to fit screen!</div>
+  </div>
+{% endblock %}
+
+{% block fs_script %}
+<script>
+  const MEMORY_NEW_URL = "{% url 'fs:memory_new' %}";
+</script>
+
+{% if user.is_authenticated %}
+  <script src="{% static 'fs/js/memory-auth.js' %}"></script>
+{% else %}
+  <script src="{% static 'fs/js/memory-guest.js' %}"></script>
+{% endif %}
+{% endblock %}

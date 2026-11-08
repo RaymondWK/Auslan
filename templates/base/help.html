@@ -1,0 +1,130 @@
+<!--
+templates/base/help.html
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+-->
+
+{% extends "base/layout.html" %}
+{% load static %}
+
+{% block title %}: Help{% endblock %}
+
+{% block style %}
+    <link href="{% static 'base/styles.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block heading %}Help{% endblock %}
+
+{% block content %}
+
+    <div id="help">
+        <h5>Help</h5>
+
+<h6>Descriptions of the Fingerspelling Trainers</h6>
+FS Trainer
+  Intro
+    How to learn fingerspelling
+    Benefits of using this Computer Aided Learning (CAL) web application
+    Users of 2-handed fingerspelling
+  Letters
+    Choose an image to display a large version of it
+    Choose letters on the images to display in lowercase or uppercase
+  Recognition
+    The basic game shows the FS images of the letters in random order and
+      the user chooses the image from the grid, with scores kept for
+      each letter
+    32 variations of the game
+      Hide/Show highlighting
+      Hide/Show images (leaving just the letters)
+      Have/Not Have repetitions (by having multiple copies of the alphabet)
+      Timed/Untimed (used to 'beat your record')
+      Randomise Images (position)/Ordered
+    Display letters in lowercase or uppercase
+  Memory
+    Also called <i>Pairs</i> or <i>Concentration</i> is a classic children's
+    game where players flip over two face-down cards at a time, trying to find
+    matching pairs from a grid set out on a table; if they match, they keep
+    the pair and go again, but if not, the cards are flipped back, and play
+    passes to the next person, with the goal being to collect the most pairs
+    by the end.
+
+    <strong>Skills Developed: </strong>Focus, visual memory, concentration, and recall.
+
+    <strong>Options:</strong>
+      Vary the card size using a slider
+      Specify the number of pairs to play with, from 2 to 26
+      Choose the shape of the grid; e.g. for 6 pairs: 1x12, 2x6, 3x4, 4x3, 6x2, 12x1
+      Choose to have the shape determined to be as wide as the screen will allow
+      Play Solitaire or against the Computer: Beginner, Intermediate, Advanced and Expert
+      Timing:
+        Untimed
+        Timed (Lose Turn or Random Turn) with the user choosing the max time for a move
+
+    <strong>Statistics:</strong> Moves/Matches/Accuracy/Score/Time
+
+    <strong>Recorded best results for each user:</strong>
+        Solitaire  : Moves/Accuracy/Time
+        vs Computer: Score/Accuracy
+
+    Incidentally, when I was about 12 years old and my brother was 10, we once
+    played a game of Memory with 42 packs of playing cards, placing them
+    all over the house; that's 1,092 cards.
+  BlockWords
+    A 9-letter word, which has a suitable number of subwords that can be made with
+    3, 4 or 5 letters, is randomly selected for the user to find the subwords.
+    10 subwords of each length, not all of them.
+    The use of the middle letter is not required.
+    The images of the 9 letters are displayed in a 3x3 rectangle, and the
+    successful subwords are added to a list in alphabetic order; the counts of
+    successful words are displayed above their respective lists.
+    The numbers of words available in the list of allowable words is also
+    displayed at the top of each list.
+    No letters are shown in this game.
+    Check the words in the lists to avoid attempting a word already found.
+    There is no timing in this version.
+    When there are more than 80 words, you may continue to
+    Mastering this game will help you become a master of reading fingerspelled
+    words.
+
+    <strong>Buttons:</strong> New/Cancel/Check/Back/Hint
+  Reader
+    This app provides for reading fingerspelled words in a sentence.
+    It is akin to both software for training for speed reading and software for
+    increasing typing speed.
+    Provide some text, press the Start button, and start reading and typing what
+    you read or opt to just read what you see.
+    A slider allows you to increase or decrease the speed.
+    You may repeat the exercise as often as you like.
+
+    <strong>Options:</strong>
+        Type/Not Type
+        Speed
+        Size of images
+        Display horizontally or as frames
+
+<h6>Usage</h6>
+Little blue info buttons: click on them to get specific information.
+
+<h6>Limitations without logging in</h6>
+FS Trainer
+  Intro: None
+  Letters: None
+  Recognition: Restricted to Exercise 1, the most basic variation.
+  Memory: Restricted to a small 2 x 2 grid.
+  BlockWords: None
+  Reader: 10 words
+Posts: Restricted to "All Posts" and there is no ability to post.
+Messages: Requires logging in for any part of it.
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log("DOM loaded");
+            const helpMenuElement = document.querySelector("#help-menu");
+            if (helpMenuElement) {
+                helpMenuElement.classList.add("active");
+            }
+        });
+    </script>
+{% endblock %}

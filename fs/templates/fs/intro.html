@@ -1,0 +1,119 @@
+<!--
+fs/templates/fs/intro.html
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+-->
+
+{% extends "fs/layout.html" %}
+{% load static %}
+
+{% block title %}: Trainer{% endblock %}
+
+{% block fs_style %}
+<style>
+:root {
+  --old-gold: #cfb53b;
+}
+
+h5 {
+  color: var(--old-gold);
+}
+
+/* Hide the content by default */
+.content {
+    display   : none;
+    padding   : 10px;
+    border    : 1px solid #ccc;
+    margin-top: 10px;
+}
+
+/* Style the buttons and visible content */
+button {
+    margin-top: 10px;
+    padding   : 8px 12px;
+    cursor    : pointer;
+}
+
+</style>
+{% endblock %}
+
+{% block fs_content %}
+<h5>Introduction: Learning to Fingerspell</h5>
+
+<button onclick="toggleContent('content_learning')">Learning</button>
+<button onclick="toggleContent('content_personal')">Personal</button>
+<button onclick="toggleContent('content_applicable')">Applicable</button>
+
+<!-- Learning -->
+<div id="content_learning" class="content">
+  <h6>Learning</h6>
+  <p>Learning to read fingerspelled words like a Deaf person is really very, very <strong>difficult</strong>.</p>
+  <p>Some things to consider to help you learn:</p>
+  <ul>
+    <li>Look at both hands and the shape they make when identifying a letter. The entire combined hand-shape makes the letter.</li>
+    <li>When we learn to read, we don't look at the left side of an 'H' and then the right side and the middle horizontal line. We look at it as an image. When we read, we don't break down a word into separate letters and then recombine them to make a word. Learning to read took a long time. Learning to read fingerspelled words requires seeing the same words over and over again.</li>
+    <li>When we read words, we don't see the letters one at a time like in fingerspelling, but seeing them side-by-side helps to see the pattern as a complete word. Hearing a spelt word is more difficult to understand than the spoken word. The first step is to know the letter shapes and sounds. Next, <i>knowing</i> the words.</li>
+    <li>Avoid looking at just the position, hand-shape and movement of the dominant hand alone. We don't read letters the same way we write them.</li>
+    <li>Consider the difficulty of distinguising between 'm' and 'n': observe how many knuckles are visible at the base of the dominant hand: 1 or 2.</li>
+    <li>Look at all the FS letters and consider which ones have an open base hand facing forward, for example. Find groups of similar hand shapes, for example.</li>
+    <li>We read faster with lowercase letters, so associations with fingerspelled letters should be associated with and learned with lowercase letters.</li>
+    <li>Find someone to practice with and practice the same letter combinations over and over again.</li>
+    <li>Hold complete conversations in fingerspelling, without signs and without voice. Do this at the speed that your fingerspelling can be read. Tedious, but important as a learning tool.</li>
+    <li>The drills, tests and games that are provided here will help you learn to <i>read</i> fingerspelling.</li>
+    <li>A posting system and a direct messaging system have been provided with this training system to help facilitate communcation with others who are also interested in learning to fingerspell.</li>
+    <li>Practice with children. They are quick, intuitive learners.</li>
+  </ul>
+</div>
+
+<!-- Personal experience -->
+<div id="content_personal" class="content">
+  <h6>Personal</h6>
+  <p>When I learnt Auslan, I achieved 100% in each of the 4 years of the course, and I succeeded in getting a Certificate II in Auslan and a Certificate III.
+  I had in fact become a qualified teacher of Auslan and taught Deaf people in years 11 and 12 at a school, and Year 9 hearies.
+  I also taught Deaf adults computing, English and mathematics. Furthermore, I taught a Year 8 Deaf girl to achieve 100% in high school mathematics after 18 months of 2 hours per week private sessions. This continued for 3 1/2 years - all voluntary!</p>
+  <p>However, I could not become an interpreter, which was my original goal. I could have done Certificate IV and would have passed really well, but then I would not have been able to progress to becoming an interpreter.
+  This was because I couldn't read fingerspelling fast enough. I may have worn a depression in my arm for all the times I signed "<i>slower</i> please", and may have caused RSI in my wrist for all the times I signed "<i>again</i> please".</p>
+  <p>Thus, it is really important to learn to fingerspell, but it is the hardest part of Auslan to learn to do adequately fast.</p>
+  <p>There are better ways to learn than reading one word from a person standing in front of the class, and then another person fingerspelling another word. this takes too long for so few words. The time was wasted. It would have been far better to have us practice in pairs using full sentences, so that we would become fluent readers. This website provides ways to learn to read fingerspelled words without a partner, with the frequency of words being read at least 30 times more per 10-minute period than in the classroom, and with instant feedback. Learning through play with a high number of repetitions and high rate and variety of words is an excellent way to learn faster.</p>
+  <p>I have been using my web application myself to train myself to be better!! Checking the lists of found words in the *BlockWords* app for words I have already created has enabled me to *see* some FS words at a glance. My theory is proven.</p>
+  <p>Looking at the FS letter as an *image* and not looking as to how each letter was made, is also very important. </p>
+</div>
+
+<!-- Applicable -->
+<div id="content_applicable" class="content">
+  <h6>Applicable</h6>
+  <p>New Zealand Sign Language (NZSL) and various dialects of Indo-Pakistani Sign Language use the same two-handed fingerspelling method as Auslan and British Sign Language (BSL). These languages are considered part of the same language family, known as the British, Australian and New Zealand Sign Language (BANZSL) family.
+  </p>
+  <ul>
+      <li><b>Auslan (Auslan)</b>: Auslan is the Australian Sign Language. Auslan is a complete language with its own grammar, syntax, and vocabulary, and it has regional variations and dialects. Auslan evolved from the sign languages brought to Australia by British, Irish, and Scottish immigrants in the 19th century.  The Australian government officially recognized Auslan as a community language in 1987 and as a legitimate language in 1991.</li>
+      <li><b>British Sign Language (BSL)</b>: As a member of the BANZSL family, BSL shares the same manual alphabet and much of the same vocabulary as Auslan.</li>
+      <li><b>New Zealand Sign Language (NZSL)</b>: As a member of the BANZSL family, NZSL shares the same manual alphabet and much of the same vocabulary as Auslan and BSL.</li>
+      <li><b>Indo-Pakistani Sign Language</b>: Variations of the two-handed manual alphabet are used in some dialects of Indo-Pakistani Sign Language.</li>
+      <li><b>South African Sign Language</b>: South African Sign Language is also considered part of the BANZSL family and uses this alphabet.</li>
+  </ul>
+</div>
+{% endblock %}
+
+{% block fs_script %}
+<script>
+  // Toggle the display style
+  function toggleContent(elementId) {
+    const elements = document.querySelectorAll('.content');
+
+    // Iterate through the NodeList of elements
+    elements.forEach(element => {
+      // Check if the element does NOT have the specified id
+      // The element.id property returns an empty string if no id is set
+      if (element.id !== elementId) {
+        // Hide the element by setting its display style to 'none'
+        element.style.display = 'none';
+      } else {
+        if (element.style.display === 'none' || element.style.display === '') {
+          element.style.display = 'block'; // Show the element
+        } else {
+          element.style.display = 'none'; // Hide the element
+        }
+      }
+    });
+  }
+</script>
+{% endblock %}

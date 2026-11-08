@@ -1,0 +1,278 @@
+/*
+user_messages/static/user_messages/styles.css
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+*/
+
+textarea {
+  min-height: 400px;
+}
+
+.messages-menu.active {
+  color           : green;
+  font-weight     : bold;
+  background-color: white;
+}
+
+#no-message-message,
+#no-messages-message {
+  font-weight: bold;
+  color      : red;
+}
+
+#messages-view {
+  height    : 500px; /* fixed height for the inbox */
+  overflow-y: auto;  /* allow vertical scrolling */
+}
+
+.messages-item {
+  display              : grid;
+  grid-template-columns: 2fr 4fr 3fr; /* column fractions */
+  gap                  : 10px;
+  border               : 1px solid black;
+  padding              : 8px;
+  margin               : 0 0;
+  cursor               : pointer;
+}
+
+.messages-address {
+  overflow   : hidden;
+  font-weight: bold;
+}
+
+.messages-subject {
+  overflow     : hidden;
+  white-space  : nowrap;
+  text-overflow: ellipsis; /* truncate long subject lines */
+}
+
+.messages-read {
+  background-color : #ccc; /* gray background; not as dark as 'gray' */
+}
+
+.messages-unread {
+  background-color : white;
+}
+
+#result {
+  color      : red;
+  font-weight: bold;
+}
+
+#notification {
+  display         : none;     /* hidden by initially */
+  width           : 300px;
+  color           : white;
+  font-weight     : bold;
+  background-color: #007BFF;  /* bootstrap blue */
+  border-radius   : 5px;
+
+  text-align : center;
+  font-family: Arial, sans-serif;
+  font-size  : 1.5em;
+
+  animation-name      : hide_notification;
+  animation-duration  : 5s;
+  animation-fill-mode : forwards;
+  animation-play-state: paused;
+}
+
+@keyframes hide_notification {
+  0% {
+    opacity      : 1;
+    height       : 100%;
+    line-height  : 100%;
+    padding      : 12px 20px;
+    margin-bottom: 10px;
+  }
+  75% {
+    opacity      : 0;
+    height       : 100%;
+    line-height  : 100%;
+    padding      : 12px 20px;
+    margin-bottom: 10px;
+  }
+  100% {
+    opacity      : 0;
+    height       : 0px;
+    line-height  : 0px;
+    padding      : 0px 0px;
+    margin-bottom: 0px;
+  }
+}
+
+.right-controls {
+  display        : flex;
+  justify-content: flex-end;
+  align-items    : center;
+  gap            : 10px;
+  white-space    : nowrap;
+}
+
+.messages-date {
+  font-size: 0.9em;
+  color    : gray;
+}
+
+.sent-date {
+  align-items: right;
+}
+
+.sent-date {
+  text-align: right;
+}
+
+.archive-btn {
+  width           : 70px;
+  padding         : 5px 5px;
+  background-color: #f0f0f0;
+  border          : 1px solid #ccc;
+  cursor          : pointer;
+}
+
+.delete-btn {
+  background-color: red;
+  cursor          : pointer;
+}
+
+.user-item {
+  border          : 1px solid #666;              /* thin grey border */
+  border-radius   : 8px;                         /* rounded corners */
+  padding         : 12px;                        /* space inside */
+  margin          : 15px 0;                      /* vertical gap between cards */
+  background-color: #fafafa;                     /* light grey background */
+  box-shadow      : 2px 2px 5px rgba(0,0,0,0.1); /* subtle shadow */
+  width           : 90%;
+}
+
+.unmute-btn {
+  background-color: #FFD700;  /* Gold 1: #FFD700, Twitter blue: #1DA1F2 */
+  color           : black;
+}
+
+.unmute-btn {
+  font-weight  : bold;
+  margin-left  : 6px;
+  border       : none;
+  border-radius: 20px;
+  padding      : 4px 12px;
+  font-size    : 0.9em;
+  cursor       : pointer;
+  transition   : background-color 0.2s ease;
+}
+
+.unmute-btn:hover {
+  background-color: #0d8ddb; /* darker on hover */
+  color           : white;
+}
+
+.muted-username {
+  font-weight: bold;
+}
+
+.muted-at-timestamp {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: normal;
+  font-size  : small;
+}
+
+.posts-header {
+  display      : flex;    /* horizontal row */
+  gap          : 0.5rem;  /* spacing between buttons */
+  flex-wrap    : wrap;    /* wrap if needed */
+  align-items  : center;  /* vertically centre buttons */
+  margin-bottom: 0.25rem;
+}
+
+#no-users-message {
+  font-weight: bold;
+  color      : red;
+}
+
+@media (max-width: 480px) {
+
+  #compose-form {
+    height    : auto;
+    overflow-y: visible;
+  }
+
+  /* Shrink page heading (Inbox, Sent, etc.) */
+  h2, h3, h4, .page-title {
+    font-size    : 1.1rem !important;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Shrink the New/Inbox/Sent/Archived/Muted menu buttons */
+  .messages-menu {
+    font-size    : 0.8rem !important;
+    padding      : 3px 6px !important;
+    height       : auto !important;
+    line-height  : 1.1 !important;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Fix message item layout */
+  .messages-item {
+    display              : grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas  :                 /* 2 rows with Row1: 2 cols, Row2: 1 col */
+      "sender controls"
+      "subject subject";
+    row-gap              : 2px;            /* tighter vertical spacing */
+    padding              : 6px !important; /* smaller padding */
+    margin               : 0;
+    border-width         : 1px;
+    width                : 100%;
+    box-sizing           : border-box;     /* prevents overflow */
+    overflow             : hidden;
+  }
+
+  .messages-address {
+    grid-area    : sender;
+    font-size    : 0.85rem;
+    font-weight  : 600;
+    white-space  : nowrap;
+    overflow     : hidden;
+    text-overflow: ellipsis;
+  }
+
+  .messages-subject {
+    grid-area  : subject;
+    font-size  : 0.8rem;
+    white-space: normal; /* wrap to fit */
+  }
+
+  /* Make date + buttons compact */
+  .right-controls {
+    grid-area  : controls;
+    display    : flex;
+    gap        : 4px;
+    align-items: center;
+    white-space: nowrap;
+  }
+
+  .messages-date {
+    font-size: 0.7rem;
+  }
+
+  .archive-btn,
+  .delete-btn {
+    font-size  : 0.7rem !important;
+    padding    : 2px 4px !important; /* much narrower */
+    height     : auto !important;
+    line-height: 1 !important;
+    min-width  : 40px;               /* keeps it readable */
+  }
+
+  .delete-btn {
+    width      : 40px !important;
+    font-weight: bold;
+  }
+
+  .archive-btn {
+    width: 60px !important;
+  }
+
+  .messages-item {    /* maybe fits one more rows per screen */
+    padding: 4px 6px; /* less vertical space */
+  }
+}

@@ -1,0 +1,108 @@
+/*
+static/base/styles.css
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+*/
+
+:root {
+  --old-gold: #cfb53b;
+}
+
+
+#noscript-message {
+  margin     : 2rem;
+  font-family: sans-serif;
+  text-align : center;
+  font-size  : 24px;
+  line-height: 2;
+}
+
+nav .navbar-brand {
+  font-size: xx-large;
+}
+
+/* Colors for brand */
+nav .navbar-brand .title-page {
+  color: #2e944b;
+}
+
+nav .navbar-brand .title-prefix {
+  color: #0000ff;
+}
+
+/* Align all nav links to the same baseline */
+.navbar-nav .nav-link {
+  display    : flex;
+  align-items: center;
+  padding    : 0.5rem 1rem; /* vertical alignment */
+}
+
+.nav-link.active {
+  color      : blue !important; /* override bootstrap */
+  font-weight: bold;
+}
+
+#help,
+#about {
+  white-space: pre-wrap;
+}
+
+h5 {
+  color: var(--old-gold);
+}
+
+.logo-wrapper {
+  max-width : 100px;
+  text-align: center;
+}
+
+#logo {
+  max-width   : 80px;
+  max-height  : 80px;
+  height      : auto;
+  width       : auto;
+  display     : block;
+  margin-right: 15px;
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    flex-wrap: nowrap;
+  }
+
+  .navbar-brand {
+    display    : flex;
+    align-items: center;
+    gap        : 0.25rem;
+    white-space: nowrap;
+  }
+
+  #logo {
+    height     : 28px;
+    width      : auto;
+    max-width  : none;
+    max-height : none;
+    margin-left: 0;
+  }
+
+  .navbar-brand .title-page {
+    font-size  : 1rem; /* smaller title */
+    font-weight: 600;
+  }
+
+  .navbar-brand .title-prefix {
+    display: none; /* remove “Auslan: ” */
+  }
+
+  /* Shrink the whole button */
+  .navbar-toggler {
+    padding  : 0.15rem 0.25rem; /* smaller hitbox */
+    font-size: 0.75rem;         /* reduces default scaling */
+  }
+
+  /* Shrink the icon itself */
+  .navbar-toggler-icon {
+    width          : 20px;
+    height         : 20px;
+    background-size: 20px 20px; /* shrink the internal bars */
+  }
+}

@@ -1,0 +1,21 @@
+/*
+users/static/users/styles.css
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+*/
+
+#login-username,
+#login-password,
+#login-submit,
+#register-submit {
+  margin-top: 9px;
+}
+
+.login-field,
+.register-field {
+  width: 300px;
+}
+
+.message-div {
+  color      : red;
+  font-weight: bold;
+}

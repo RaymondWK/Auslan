@@ -1,0 +1,298 @@
+/*
+user_posts/static/user_posts/styles.css
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+*/
+
+:root {
+  --old-gold           : #cfb53b;
+  --spring-green       : #00FF7F;
+  --brass              : #b5a642;
+  --gold-1             : #ffd700;
+  --twitter-blue       : #1da1f2;
+  --cherry-blossom-pink: #FFB7C5;
+}
+
+.menu-item.active {
+  color      : green !important; /* override bootstrap */
+  font-weight: bold;
+}
+
+#notification {
+  display          : none;     /* hidden initially */
+  width            : 300px;
+  color            : white;
+  font-weight      : bold;
+  background-color : #007BFF;  /* bootstrap blue */
+  border-radius    : 5px;
+
+  text-align       : center;
+  font-family      : Arial, sans-serif;
+  font-size        : 1.5em;
+
+  animation-name      : hide_notification; /* For slowly removing the notification; see below */
+  animation-duration  : 5s;
+  animation-fill-mode : forwards;
+  animation-play-state: paused;
+}
+
+#result {
+  color      : red;
+  font-weight: bold;
+}
+
+.posts-username,
+.muted-username {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bolder;
+  font-size  : x-large;
+  color      : blue;
+}
+
+.posts-text {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size  : medium;
+}
+
+.posts-timestamp,
+.muted-timestamp  {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: normal;
+  font-size  : small;
+}
+
+@keyframes hide_notification {
+  0% {
+    opacity      : 1;
+    height       : 100%;
+    line-height  : 100%;
+    padding      : 12px 20px;
+    margin-bottom: 10px;
+  }
+  25% {
+    opacity      : 1;
+    height       : 100%;
+    line-height  : 100%;
+    padding      : 12px 20px;
+    margin-bottom: 10px;
+  }
+  75% {
+    opacity      : 0;
+    height       : 100%;
+    line-height  : 100%;
+    padding      : 12px 20px;
+    margin-bottom: 10px;
+  }
+  100% {
+    opacity      : 0;
+    height       : 0px;
+    line-height  : 0px;
+    padding      : 0px 0px;
+    margin-bottom: 0px;
+  }
+}
+
+#compose-body {
+  min-height: 400px;
+}
+
+#no-posts-message,
+#no-users-message {
+  font-weight: bold;
+  color      : red;
+}
+
+#new-post-view {
+  border          : 2px solid #333; /* dark border */
+  padding         : 15px;           /* space inside */
+  margin          : 20px 0;         /* space outside */
+  border-radius   : 8px;            /* rounded corners */
+  background-color: #f9f9f9;        /* light background */
+  width           : 90%;            /* almost match textarea width */
+}
+
+#text {
+  width     : 96%;
+  min-height: 2em;
+  max-height: 200px;      /* cap expansion */
+  resize    : none;       /* disallow user resizing */
+  overflow-y: auto;       /* show scrollbar only if text exceeds max height */
+  box-sizing: border-box; /* take padding and border into consideration */
+}
+
+.edit-textarea {
+  width     : 96%;
+  max-height: 200px;                        /* cap expansion */
+  resize    : none;                         /* disallow user resizing */
+  overflow-y: auto;                         /* show scrollbar only if text exceeds max height */
+  box-sizing: border-box;                   /* take padding and border into consideration */
+  height    : auto;                         /* reset to shrink if text is removed */
+  height    : textarea.scrollHeight + "px"; /* expand to fit content */
+  min-height: 4em;
+}
+
+.post-item,
+.user-item {
+  border          : 1px solid #666;              /* thin grey border */
+  border-radius   : 8px;                         /* rounded corners */
+  padding         : 12px;                        /* space inside */
+  margin          : 15px 0;                      /* vertical gap between cards */
+  background-color: #fafafa;                     /* light grey background */
+  box-shadow      : 2px 2px 5px rgba(0,0,0,0.1); /* subtle shadow */
+  width           : 90%;
+}
+
+.disabled {
+  pointer-events: none; /* prevents clicking */
+  opacity       : 0.6;  /* visually show disabled state */
+}
+
+.follow-btn,
+.unmute-btn,
+.unblock-btn {
+  background-color: var(--gold-1);
+  color           : black;
+}
+
+.mute-btn,
+.block-btn {
+  background-color: var(--cherry-blossom-pink);
+  color           : blue;
+}
+
+.follow-btn,
+.mute-btn,
+.unmute-btn,
+.block-btn,
+.unblock-btn {
+  font-weight  : bold;
+  margin-left  : 6px;
+  border       : none;
+  border-radius: 20px;
+  padding      : 4px 12px;
+  font-size    : 0.9em;
+  cursor       : pointer;
+  transition   : background-color 0.2s ease;
+}
+
+.follow-btn:hover,
+.mute-btn:hover,
+.unmute-btn:hover,
+.block-btn:hover,
+.unblock-btn:hover {
+  background-color: #0d8ddb; /* darker on hover */
+  color           : white;
+}
+
+.posts-header {
+  display      : flex;    /* horizontal row */
+  gap          : 0.5rem;  /* spacing between buttons */
+  flex-wrap    : wrap;    /* wrap if needed */
+  align-items  : center;  /* vertically center buttons */
+  margin-bottom: 0.25rem;
+}
+
+.post-actions-row span {
+  display: inline-flex; /* inline flexible container for buttons */
+}
+
+.muted-username,
+.user-actions {
+  display       : inline-block;
+  vertical-align: middle;
+  margin-right  : 10px;
+}
+
+.following {
+  background-color: white;
+  color           : var(--twitter-blue);
+  border          : 1px solid var(--twitter-blue);
+}
+
+#div-follows {
+  color: black;
+}
+
+#Following {
+  color      : blue;
+  font-weight: bold;
+}
+
+#Followers {
+  color      : orange;
+  font-weight: bold;
+}
+
+.send-btn {               /* if change color from 'white': reduce font-size */
+  background-color: white;
+  color           : white;
+  font-weight     : bold;
+  margin-left     : 6px;
+  border          : none;
+  border-radius   : 20px;
+  font-size       : 1.6em;
+  cursor          : pointer;
+  transition      : background-color 0.2s ease;
+}
+
+.pagination-controls {
+  display    : flex;
+  align-items: center;
+  margin-top : 8px;
+}
+
+.nav-btn {
+  padding         : 6px 12px;
+  width           : 80px; /* equal width */
+  margin-right    : 10px; /* gap between buttons */
+  background-color: #007bff;
+  color           : white;
+  border          : none;
+  border-radius   : 6px;
+  cursor          : pointer;
+}
+
+.edit-btn {
+  margin-left     : 0px;
+  background-color: green;
+  color           : white;
+  border-radius   : 6px;
+}
+
+.save-btn {
+  background-color: blue;
+  color           : white;
+  border-radius   : 6px;
+}
+
+.cancel-btn {
+  background-color: pink;
+  color           : black;
+  border-radius   : 6px;
+  margin-left     : 6px;
+}
+
+#prev-btn:disabled,
+#next-btn:disabled {
+  background-color: #ccc;           /* Lighter gray background */
+  color           : #666;           /* Darker gray text */
+  cursor          : not-allowed;    /* Change cursor to "not-allowed" */
+  opacity         : 0.7;            /* Reduce opacity for a faded look */
+  border          : 1px solid #999; /* Adjust border color */
+}
+
+#next-btn {
+  margin-left: 8px;
+}
+
+.page-btn {
+  background-color: #0d6ee3; /* Less blue than Bootstrap's blue button */
+  margin-left     : 1px;
+  margin-right    : 1px;
+  border-radius   : 5px;
+  color           : white;
+}
+
+.posts-like[data-loading="1"] {
+  pointer-events: none;
+}

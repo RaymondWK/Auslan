@@ -1,0 +1,4 @@
+fs/static/fs/letters/*.jpg
+These fingerspelled images are licensed under Creative Commons BY-NC-ND 4.0
+From signbank.com.au
+By Professor Trevor Johnston

@@ -1,0 +1,80 @@
+/*
+fs/static/fs/styles.css
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+*/
+
+tr.flash > td {
+  background-color: powderblue !important;
+  transition      : background-color 1s ease;
+}
+
+.filter-select {
+  width: 160px;
+}
+
+info-icon {
+  font-size  : 0.9em;
+  margin-left: 6px;
+  color      : #555;
+  cursor     : pointer;
+}
+
+.dropdown-menu {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+/* Auth links: right-aligned and nicely spaced */
+.auth-links .nav-link {
+  color        : green;
+  font-size    : 1em;
+  padding-left : 0.75rem;
+  padding-right: 0.75rem;
+}
+
+/* Align vertically with navbar items */
+.navbar-nav .nav-link {
+  display    : flex;
+  align-items: center;
+}
+
+/* Add a little space between login/register/logout */
+#login,
+#register,
+#logout {
+  margin-left: 0.5rem;
+}
+
+/* On small screens, center them */
+@media (max-width: 991px) {
+  .navbar {
+    flex-wrap: nowrap;
+  }
+
+  .auth-links {
+    text-align: center;
+    width     : 100%;
+  }
+  .auth-links .nav-link {
+    display: block;
+    padding: 0.5rem 0;
+  }
+}
+
+body {
+  position      : relative;
+  min-height    : 100vh;
+  margin        : 0;
+  padding-bottom: 50px; /* Adjust to footer height */
+}
+
+#copyright-footer {
+  position  : absolute;
+  bottom    : 0;
+  left      : 0;
+  width     : 100%;
+  text-align: right;
+  padding   : 8px 20px;
+  font-size : 0.9rem;
+  color     : #555;
+}

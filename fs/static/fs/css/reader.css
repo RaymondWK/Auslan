@@ -1,0 +1,184 @@
+/*
+fs/static/fs/css/memory.css
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+*/
+
+:root {
+  --card-width     : 96px;                            /* default */
+  --card-height    : calc(var(--card-width) * 3 / 4); /* 192×144 => 4:3 */
+  --card-gap       : 4px;
+  --back-color     : #cfb53b;                         /* old-gold */
+  --matched-opacity: 0.25;
+  --old-gold       : #cfb53b;
+  --sign           : #4b62ae;
+}
+
+h5 {
+  color  : var(--old-gold);
+  display: block;
+}
+
+#test-image {
+  width : var(--card-width);
+  height: var(--card-height);
+}
+
+body {
+  padding: 1rem;
+}
+
+#display-horizontal {
+  height    : var(--card-height);
+  border    : 1px solid #ccc;
+  overflow  : hidden;
+  position  : relative;
+  background: #fff;
+  position: relative;
+}
+
+#display-vertical {
+  height          : calc(var(--card-height) * 3 / 2);
+  width           : calc(var(--card-width) * 3 / 2);
+  display         : block;
+  background-color: var(--sign);
+  border          : 4px solid black;
+  display         : flex;
+  justify-content : center;
+  align-items     : center;
+  position        : relative;
+}
+
+#vertical-image {
+  width  : var(--card-width);
+  height : var(--card-height);
+}
+
+.letter.punctuation {
+  font-size: 32px;
+}
+
+.letter.space {
+  background: #fff;
+  border    : none; }
+
+textarea {
+  font-family: monospace;
+}
+
+#hand-image {
+  margin: 8px 0 8px 0;
+}
+
+#scroll-strip {
+  display    : flex;
+  gap        : var(--card-gap);
+  position   : absolute;
+  left       : 0;
+  top        : 0;
+  will-change: transform; /* Performance Optimization  : prepare for animation or transition, resulting in a smoother, more fluid visual experience.
+                             Hardware Acceleration     : Encourages the browser to use the GPU for rendering changes.
+                             Ahead-of-Time Optimization: before the property changes. */
+}
+
+.letter-cell {
+  width          : var(--card-width);
+  height         : var(--card-height);
+  flex           : 0 0 auto;
+
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+
+  overflow       : hidden;
+}
+
+.letter-cell img {
+  max-width : 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.btn {
+  font-weight: bold;
+}
+
+.input-label {
+  font-weight: bold;
+  margin-left: 0px;
+}
+
+.slider-grid {
+  display: inline-grid;
+  row-gap: 12px; /* space between rows */
+}
+
+/* Each row: 2 columns */
+.slider-row {
+  display              : grid;
+  grid-template-columns: auto 206px; /* label + slider/value */
+  column-gap           : 6px;
+  align-items          : center;
+}
+
+/* Slider + value container */
+.slider-group {
+  display    : flex;
+  align-items: center;
+  gap        : 6px;
+}
+
+/* Width for the slider itself */
+.slider-group input[type="range"] {
+  width: 200px;
+}
+
+.gap {
+  width: 0px;
+}
+
+.slider-group span {
+  display   : inline-block;
+  width     : 40px;   /* fixed width for the value */
+  text-align: right;
+}
+
+.hidden {
+  display: none !important;
+}
+
+#duplicate-count {
+  position      : absolute;
+  top           : 1px;
+  right         : 1px;
+  font-size     : 0.80em;
+  font-weight   : bold;
+  color         : white;
+}
+
+#content-the-text {
+  margin-left : 30px;
+}
+#letter-count-label {
+  margin-left: 5px;
+}
+
+@media (max-width: 576px) {
+  .slider-row {
+    grid-template-columns: 100px 1fr; /* keep fixed label width */
+  }
+
+  .slider-group input[type="range"] {
+    width    : 100%; /* fill available space */
+    max-width: 200px;
+    }
+
+  .slider-grid {
+    row-gap: 6px; /* space between rows */
+  }
+
+  .responsive-btn {
+    /* Apply btn-sm styles: modify padding and font-size */
+    padding  : 0.25rem 0.5rem; /* Example values for btn-sm from Bootstrap source */
+    font-size: 0.875rem;       /* Example values for btn-sm from Bootstrap source */
+  }
+}

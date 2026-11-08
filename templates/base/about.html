@@ -1,0 +1,118 @@
+<!--
+templates/base/about.html
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+-->
+
+{% extends "base/layout.html" %}
+{% load static %}
+
+{% block title %}: About{% endblock %}
+
+{% block style %}
+    <link href="{% static 'base/styles.css' %}" rel="stylesheet">
+
+<style>
+:root {
+  --old-gold: #cfb53b;
+}
+
+h2 {
+  color: var(--old-gold);
+}
+
+h3 {
+  color: blue;
+}
+
+h4 {
+  color: green;
+}
+
+.content {
+  white-space: pre-wrap;
+}
+
+/* Hide the content by default */
+.content {
+    display   : none;
+    padding   : 10px;
+    border    : 1px solid #ccc;
+    margin-top: 10px;
+}
+
+/* Style the buttons and visible content */
+button {
+    margin-top: 10px;
+    padding   : 8px 12px;
+    cursor    : pointer;
+}
+
+</style>
+{% endblock %}
+
+{% block heading %}About{% endblock %}
+
+{% block content %}
+
+<h2>About</h2>
+<strong>License and Attribution of the Images, and Copyright of the Rest</strong>
+
+<button onclick="toggleContent('images_license')">FS Images</button>
+<button onclick="toggleContent('copyright_the_rest')">The Rest</button>
+
+<div id="images_license" class="content">
+<h3>License and Attribution of the Images</h3>
+Auslan FS Trainer is in general
+Copyright &copy; 2025 by Dr. Raymond William Kennington Ph.D.,
+except for the Fingerspelling hand images with the San Marino-like backgrounds, which are licensed under <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/">Creative Commons BY-NC-ND 4.0</a>
+
+<strong>Title of the work being licensed</strong>: Images of the Fingerspelled 2-Handed alphabet from <a href="https://auslan.org.au/">Signbank</a>.
+
+<strong>Attribution</strong>: <i>Professor Trevor Johnston</i> has been instrumental
+in documentating the Auslan language and its linguistics, and in
+producing dictionaries and having the <a href="https://auslan.org.au/">Signbank</a> website developed.
+
+<a href="https://auslan.org.au/">Signbank</a> has a page of <a href="https://auslan.org.au/about/acknowledgements/">Acknowledgements</a>.
+On that page, there are many helpers listed as editor(s), researchers,
+annotators, programmers and web designers, as well as supporters and
+sponsors.
+
+<strong>Author</strong>: There is only one author listed: <i>Professor Trevor Johnston</i>.
+
+<strong>Warranty</strong>: There is no warranty of accuracy from the creator of the images nor from the creator of these web pages.
+
+<strong>Mofications</strong>: There are no modifications to the images copied from the Signbank fingerspelling web page.
+
+</div>
+<div id="copyright_the_rest" class="content">
+<h3>Copyright of the Rest</h3>
+All coding including Python code, project structure, HTML files, CSS files and code,
+Javascript files and code, game designs, interfaces, database structures,
+are all Copyright &copy; 2025 by Dr. Raymond William Kennington Ph.D.
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+  // Toggle the display style
+  function toggleContent(elementId) {
+    const elements = document.querySelectorAll('.content');
+
+    // Iterate through the NodeList of elements
+    elements.forEach(element => {
+      // Check if the element does NOT have the specified id
+      // The element.id property returns an empty string if no id is set
+      if (element.id !== elementId) {
+        // Hide the element by setting its display style to 'none'
+        element.style.display = 'none';
+      } else {
+        if (element.style.display === 'none' || element.style.display === '') {
+          element.style.display = 'block'; // Show the element
+        } else {
+          element.style.display = 'none'; // Hide the element
+        }
+      }
+    });
+  }
+</script>
+{% endblock %}

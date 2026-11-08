@@ -1,0 +1,92 @@
+<!--
+fs/templates/fs/blockwords.html
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+-->
+
+{% extends "fs/layout.html" %}
+{% load static %}
+
+{% block fs_style %}
+    <link rel="stylesheet" href="{% static 'fs/css/blockwords.css' %}">
+{% endblock %}
+
+{% block fs_content %}
+<h5>BlockWords
+ <span id="content-info"
+    tabindex="0"
+    data-bs-toggle="popover"
+    data-bs-trigger="focus"
+    data-bs-html="true"
+    data-bs-container="body"
+    title="The Value in playing <i>FS BlockWords</i>">
+    ℹ️
+  </span>
+  <span id="content-playing"
+    tabindex="0"
+    data-bs-toggle="popover"
+    data-bs-trigger="focus"
+    data-bs-html="true"
+    data-bs-container="body"
+    title="Playing <i>FS BlockWords</i>">
+    ℹ️
+  </span>
+</h5>
+
+<div class="blockwords-app">
+  <div class="controls mb-2 d-flex align-items-end">
+    <button id="new-btn" class="btn btn-primary btn-sm me-3">New</button>
+
+    <div class="grand-total d-flex">
+      <span class="found-header me-1">Total:</span>
+      <span id="grand-total"></span>
+    </div>
+  </div>
+
+  <div id="top-counts">
+    <div class="found-header-top">3-letter <span id="count-3-top">0</span></div>
+    <div class="found-header-top">4-letter <span id="count-4-top">0</span></div>
+    <div class="found-header-top">5-letter <span id="count-5-top">0</span></div>
+  </div>
+
+  <div class="game-row">
+    <div class="found-columns">
+      <div class="found-col">
+        <div class="found-header">3-letter <span id="count-3">0</span></div>
+        <div id="list-3" class="found-list"></div>
+      </div>
+      <div class="found-col">
+        <div class="found-header">4-letter <span id="count-4">0</span></div>
+        <div id="list-4" class="found-list"></div>
+      </div>
+      <div class="found-col">
+        <div class="found-header">5-letter <span id="count-5">0</span></div>
+        <div id="list-5" class="found-list"></div>
+      </div>
+    </div>
+
+    <div class="board-area">
+      <div id="current-selection" class="current-selection"></div>
+
+      <div id="grid-3x3" class="grid-3x3" aria-live="polite">
+        <!-- 9 letter tiles will be inserted here -->
+      </div>
+
+      <div class="row">
+        <div class="col-12 d-flex justify-content-center">
+          <!-- inline-flex container keeps its width to the buttons only, so it centres nicely -->
+          <div class="btn-row d-inline-flex flex-wrap">
+            <button id="cancel-btn" class="btn btn-secondary">Cancel</button>
+            <button id="add-btn"    class="btn btn-success"  >Add</button>
+            <button id="back-btn"   class="btn btn-warning"  >Back</button>
+            <button id="hint-btn"   class="btn btn-info"     >Hint</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block fs_script %}
+    <script src="{% static 'fs/js/blockwords.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base/layout.html" %}
+{% load static %}
+
+{% block title %}: FS Trainer{% endblock %}
+
+{% block style %}
+    <link href="{% static 'fs/styles.css' %}" rel="stylesheet">
+{% endblock %}
+
+<!--
+templates/base/index.html
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+-->
+
+{% block heading %}FS Trainer{% endblock %}
+
+{% block content %}
+<h2>Welcome to the Auslan Fingerspelling Trainer</h2>
+
+<p><strong>Learn </strong>to read two-handed Auslan fingerspelling.</p>
+<p><strong>Consists of </strong> <i>drills</i>, <i>tests</i> and <i>games</i>.</p>
+<p><strong>Games for </strong>any signer from beginner to expert, with games played using the fingerspelled images of the alphabetic latters.</p>
+<p><strong>Reader for</strong>any signer from beginner to expert, to learn to <i>read</i> fingerspelled words by reading text, even a complete book, with hundreds of different speeds from super-slow (1 char/3 seconds) to very fast (10 chars/second), which is almost the speed of super-proficient signers. Type in or paste any words you like.</p>
+<p><strong>Software Design Paradigm </strong>uses the principles of CAL, which stands for Computer Aided Learning. The principles of CAL specify how the interactions between learner and computer should take place for good educational software.</p>
+{% endblock %}

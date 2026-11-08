@@ -1,0 +1,121 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite Image Scroller</title>
+    <style>
+        .scroller-container {
+            width: 100%;
+            overflow: hidden;
+            /* Optional: border for visibility */
+            border: 2px solid #ccc;
+        }
+
+        .scroller {
+            /* Width must accommodate all original and duplicated images */
+            display: flex;
+            /* Start animation with infinite loop and linear timing */
+            animation: scroll 20s linear infinite;
+        }
+
+        .scroller-image {
+            /* Define the size of each image container */
+            width: 200px;
+            height: 150px;
+            /* Prevents images from shrinking */
+            flex-shrink: 0;
+            /* Optional: spacing between images */
+            margin-right: 10px;
+        }
+
+        .scroller-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures images cover their container well */
+        }
+
+        /* The keyframe animation for continuous movement */
+        @keyframes scroll {
+            0% {
+                /* Start at original position */
+                transform: translateX(0);
+            }
+            100% {
+                /* Move left by the total width of the original set of images */
+                /* If you have 5 images of 200px + 10px margin, this is -1050px */
+                /* The exact value will depend on your specific image count and sizes */
+                /* transform: translateX(-1050px); */
+                transform: translateX(-5460px);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scroller-container">
+        <div class="scroller" id="scroller-content">
+            <!-- Images will be inserted here by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        const imageSources = [
+            "{% static 'fs/letters/th_A.jpg' %}",
+            "{% static 'fs/letters/th_B.jpg' %}",
+            "{% static 'fs/letters/th_C.jpg' %}",
+            "{% static 'fs/letters/th_D.jpg' %}",
+            "{% static 'fs/letters/th_E.jpg' %}",
+            "{% static 'fs/letters/th_F.jpg' %}",
+            "{% static 'fs/letters/th_G.jpg' %}",
+            "{% static 'fs/letters/th_H0.jpg' %}",
+            "{% static 'fs/letters/th_I.jpg' %}",
+            "{% static 'fs/letters/th_J0.jpg' %}",
+            "{% static 'fs/letters/th_K.jpg' %}",
+            "{% static 'fs/letters/th_L.jpg' %}",
+            "{% static 'fs/letters/th_M.jpg' %}",
+            "{% static 'fs/letters/th_N.jpg' %}",
+            "{% static 'fs/letters/th_0.jpg' %}",
+            "{% static 'fs/letters/th_P.jpg' %}",
+            "{% static 'fs/letters/th_Q.jpg' %}",
+            "{% static 'fs/letters/th_R.jpg' %}",
+            "{% static 'fs/letters/th_S.jpg' %}",
+            "{% static 'fs/letters/th_T.jpg' %}",
+            "{% static 'fs/letters/th_U.jpg' %}",
+            "{% static 'fs/letters/th_V.jpg' %}",
+            "{% static 'fs/letters/th_W.jpg' %}",
+            "{% static 'fs/letters/th_X.jpg' %}",
+            "{% static 'fs/letters/th_Y.jpg' %}",
+            "{% static 'fs/letters/th_Z.jpg' %}",
+        ];
+
+        const scroller = document.getElementById('scroller-content');
+
+        // Function to create and append image elements
+        function addImagesToScroller(sources) {
+            sources.forEach(src => {
+                const div = document.createElement('div');
+                div.classList.add('scroller-image');
+                const img = document.createElement('img');
+                img.src = src;
+                div.appendChild(img);
+                scroller.appendChild(div);
+            });
+        }
+
+        // Add the original set of images
+        addImagesToScroller(imageSources);
+
+        // Crucial step: Add a duplicate set to ensure seamless looping
+        // The second set moves into view as the first set exits
+        //addImagesToScroller(imageSources);
+
+        // Note: You must adjust the @keyframes 100% translateX value
+        // to match the exact total width of your *original* set of images and their margins.
+        // For 5 images (200px width + 10px margin) it is 5 * 210px = 1050px.
+    </script>
+
+</body>
+</html>

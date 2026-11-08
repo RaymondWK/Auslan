@@ -1,0 +1,275 @@
+/*
+fs/static/fs/css/blockwords.css
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+*/
+
+:root {
+  --card-width     : 96px;                            /* default */
+  --card-height    : calc(var(--card-width) * 3 / 4); /* 192×144 => 4:3 */
+  --card-gap       : 10px;
+  --back-color     : #cfb53b;                         /* old-gold */
+  --matched-opacity: 0.25;
+  --old-gold       : #cfb53b;
+}
+
+h5 {
+  color: var(--old-gold);
+}
+
+.intro {
+  font-family: sans-serif;
+  font-size  : 0.7rem;
+}
+
+.blockwords-app {
+  max-width: 1100px;
+  margin   : 0 auto;
+}
+
+#top-counts {
+  display: none;
+}
+
+.game-row {
+  display    : flex;
+  gap        : 16px;
+  align-items: flex-start;
+}
+
+/* Found columns area */
+.found-columns {
+  width         : 300px;
+  display       : flex;
+  flex-direction: column;
+  gap           : 10px;
+}
+
+.found-col {
+  background   : #f7f7f7;
+  padding      : 8px;
+  border-radius: 6px;
+  min-height   : 120px;
+}
+
+.found-header {
+  font-weight    : bold;
+  margin-bottom  : 6px;
+  display        : flex;
+  justify-content: space-between;
+}
+
+/* list of found words as small images */
+.found-list {
+  display       : flex;
+  flex-direction: column;
+  gap           : 6px;
+  max-height    : 360px;
+  overflow      : auto;
+}
+
+.found-word-row {
+  display       : flex;
+  flex-wrap     : nowrap; /* prevent wrapping */
+  align-items   : center;
+  padding-bottom: 2px;
+}
+
+/* Add the following if longer words are added later */
+/*
+.found-word-row {
+    overflow-x: auto;
+}
+*/
+
+.board-area {
+  flex          : 1;
+  display       : flex;
+  flex-direction: column;
+  gap           : 10px;
+  align-items   : center;
+}
+
+.current-selection {
+  min-height : 64px;
+  display    : flex;
+  gap        : 8px;
+  align-items: center;
+}
+
+/* ============================= */
+/*       3 × 3 LETTER GRID       */
+/* ============================= */
+
+.grid-3x3 {
+  display              : grid;
+  grid-template-columns: repeat(3, 96px);
+  grid-gap             : 10px;
+  justify-content      : center;
+}
+
+.tile {
+  width          : var(--card-width);
+  height         : var(--card-height);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  background     : #fff;
+  border         : 2px solid #ddd;
+  border-radius  : 4px;
+  box-shadow     : 0 1px 2px rgba(0,0,0,0.05);
+  cursor         : pointer;
+  user-select    : none;
+  position       : relative;
+}
+
+.tile img {
+  width     : 100%;
+  height    : 100%;
+  object-fit: cover;
+  display   : block;
+}
+
+.tile.chosen {
+  outline   : 3px solid #0d6efd;
+  box-shadow: 0 0 8px rgba(13,110,253,0.2);
+}
+
+/* small tile used in found-lists */
+.small-tile {
+  width       : 48px;
+  height      : auto;
+  aspect-ratio: 4 / 3;
+  display     : inline-block;
+  margin-right: 6px;
+  border      : 1px solid #ccc;
+}
+
+/* Desktop / normal screens: inline horizontal buttons with a small gap */
+.btn-row {
+  display    : inline-flex;  /* inline so parent-centering works perfectly */
+  gap        : 8px;          /* consistent space between buttons (better than margins) */
+  align-items: center;
+  flex-wrap  : nowrap;       /* keep in one row on wide screens */
+}
+
+/* Set a consistent visual size for buttons */
+.btn-row button {
+  width    : 70px;           /* keep buttons visually balanced */
+  padding  : 0.45rem 0.8rem; /* default-ish padding */
+  font-size: 0.95rem;
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    flex-wrap: nowrap;
+  }
+
+  /* Stack vertically */
+  .game-row {
+    display       : flex;
+    flex-direction: column;
+    align-items   : center;
+    gap           : 1.2rem;
+  }
+
+  #top-counts {
+    width         : 180px;
+    display       : flex;
+    flex-direction: column; /* each item on its own line */
+    gap           : 2px;
+  }
+
+  .found-header-top {
+    display        : flex;
+    justify-content: space-between;  /* label left, number right */
+    width          : 100%;           /* fill the width */
+    font-weight    : bold;
+  }
+
+  /* Put board-area FIRST */
+  .board-area {
+    order    : 1;
+    width    : 100%;
+    max-width: 360px;
+  }
+
+  /* Put found-columns AFTER the board */
+  .found-columns {
+    order         : 2;
+    width         : 100%;
+    max-width     : 360px;
+    display       : flex;
+    flex-direction: column;
+    gap           : 1.2rem;
+  }
+
+  /* Improve readability on mobile */
+  .found-col {
+    background   : #f7f7f7;
+    padding      : 10px;
+    border-radius: 0px;
+    width        : 100%;
+  }
+
+  .found-list {
+    max-height: unset;   /* no scrolling needed */
+    overflow  : visible;
+    gap       : 8px;
+  }
+
+  /* Bigger grid images */
+  .grid-3x3 {
+    grid-template-columns: repeat(3, 90px);
+    grid-gap             : 12px;
+  }
+
+  .tile {
+    width       : 90px;
+    height      : auto;
+    aspect-ratio: 4/3;
+  }
+
+  /* Better spacing around rows */
+  .board-area {
+    align-items: center;
+  }
+
+  /* Buttons centered and stacked if needed */
+  .btn-row {
+    display        : flex;
+    flex-wrap      : wrap;
+    justify-content: center;
+    gap            : 10px;
+  }
+
+  .btn-row button {
+    min-width: 60px;
+    font-size: 0.9rem;
+  }
+
+  /* Bigger found images */
+  .small-tile {
+    width: 56px;
+  }
+}
+
+/* shake animation for wrong word */
+@keyframes shake {
+  0%   { transform: translateX(0)   ; }
+  20%  { transform: translateX(-8px); }
+  40%  { transform: translateX(8px) ; }
+  60%  { transform: translateX(-6px); }
+  80%  { transform: translateX(6px) ; }
+  100% { transform: translateX(0)   ; }
+}
+
+.grid-3x3.shake {
+  animation: shake 0.6s ease;
+}
+
+#count-3,
+#count-4,
+#count-5,
+#top-counts span {
+  font-family: "Courier New", Courier, monospace;
+}

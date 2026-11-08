@@ -1,0 +1,1600 @@
+<!--
+fs/templates/fs/recognition.html
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+-->
+
+{% extends "fs/layout.html" %}
+{% load static %}
+
+{% block title %}: Trainer: Letters{% endblock %}
+
+{% block fs_style %}
+<style>
+:root {
+  --old-gold    : #cfb53b;
+  --spring-green: #00FF7F;
+  --brass       : #b5a642;
+  --sign        : #4b62ae; /* the images' background colour */
+}
+
+h5 {
+  color: var(--old-gold);
+}
+
+#instruction {
+  color      : blue;
+  font-weight: bold;
+  display    : none;
+}
+
+#start-btn {
+  display: inline-block;
+}
+
+#stop-btn {
+  display         : none;
+  background-color: red;
+  color           : white;
+  font-weight     : bold;
+}
+
+#game-over {
+  color        : blue;
+  display      : none;
+  margin-top   : 0;
+  margin-bottom: 0;
+  margin-right : 20px;
+}
+
+#play-again-btn {
+  display: none;
+}
+
+body {
+  font-family: sans-serif;
+  background : #fafafa;
+  text-align : center;
+  margin: 0;
+}
+
+/* --- main layout --- */
+#fingerspellblock {
+  display        : flex;
+  flex-wrap      : wrap;
+  align-items    : flex-start;  /* align everything to the top */
+  justify-content: center;
+  gap            : 20px;
+  padding        : 10px;
+}
+
+/* Left column: image + buttons */
+#hand-container {
+  display        : flex;
+  flex-direction : column;
+  align-items    : center;
+  justify-content: flex-start;  /* keep top-aligned */
+  gap            : 10px;
+  width          : 320px;
+  margin-bottom  : 40px;
+}
+
+#hand-image {
+  display         : flex;
+  align-items     : center;
+  justify-content : center;
+  height          : 240px;
+  width           : 300px;
+  background-color: var(--sign);
+  border          : 4px solid black;
+  margin-bottom   : 10px;
+  max-width       : 100%;     /* responsive sizing */
+}
+
+#main-image {
+  width       : 192px;
+  height      : auto;
+  aspect-ratio: 4 / 3;
+  object-fit  : contain;
+}
+
+#hand-image img {
+  max-width: 100%;
+  height   : auto;
+  display  : block;
+}
+
+#game-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+#start-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Adjust spacing between Start and Info icon */
+#info-btn {
+  margin-left: 8px;
+  font-size  : 1.2rem;
+  cursor     : pointer;
+}
+
+.nav-btn {
+  margin: 5px 0;
+}
+
+#fingerspell-container {
+  flex           : 1;
+  display        : flex;
+  flex-direction : column; /* Arrange children vertically */
+  justify-content: center; /* Center the entire content horizontally */
+  align-items    : center; /* Center the entire content horizontally */
+}
+#fingerspellgrid {
+  display              : grid;
+  grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+  gap                  : 8px;
+  width                : 100%;
+  max-width            : 500px;
+}
+
+.correct {
+  border-color: blue;
+  border      : 3px solid blue;
+  box-shadow  : 0 0 6px #28a745;
+}
+
+.wrong {
+  border-color: red;
+  border      : 3px solid red;
+  box-shadow  : 0 0 6px #28a745;
+}
+
+#fingerspellgrid div {
+  position  : relative;
+  text-align: center;
+}
+
+#fingerspellgrid img {
+  width        : 100%;
+  height       : auto;
+  aspect-ratio : 4 / 3;
+  border       : 2px solid #ddd;
+  border-radius: 0px; /* CC ND license strictly prohibits alteration of the images - so no rounding! */
+  transition   : transform 0.2s ease, border-color 0.2s;
+  cursor       : pointer;
+}
+
+.character {
+  position : absolute;
+  left     : 0;
+  width    : 100%;
+  font-size: 1.0em;
+}
+
+.character.white {
+  color      : white;
+  font-weight: bold;
+  bottom     : -2px;
+  text-shadow: 1px 1px 2px black;
+}
+
+.character.black {
+  color      : black;
+  font-size  : 1.5em;
+  font-weight: normal;
+  bottom     : 4px;
+}
+
+#score-panel {
+  min-width    : 200px;
+  max-height   : 900px;
+  overflow-y   : auto;
+  align-self   : flex-start;  /* top-align */
+  border       : 2px solid #ccc;
+  border-radius: 8px;
+  padding      : 10px;
+  background   : #fff;
+  box-shadow   : 0 0 5px rgba(0,0,0,0.1);
+}
+
+#score-panel h3 {
+  text-align: center;
+  margin-top: 0;
+}
+
+#score-table {
+  width          : 100%;
+  border-collapse: collapse;
+}
+
+#score-table th, #score-table td {
+  text-align: center;
+  padding   : 4px;
+}
+
+#score-table td.correct { color: green; font-weight: bold; }
+#score-table td.wrong   { color: red; font-weight: bold; }
+#score-table td.percent { color: #444; }
+
+#totals {
+  margin-top: 10px;
+  text-align: center;
+  font-size : 0.9em;
+}
+
+#score-panel {
+  display         : inline-block;   /* Keeps it compact */
+  vertical-align  : top;            /* Aligns with grid */
+  margin-left     : 10px;           /* Reduce left white space */
+  padding         : 0.5rem;         /* Less internal padding */
+  border          : 1px solid #ccc; /* Optional subtle border */
+  border-radius   : 8px;            /* Rounded edges for consistency */
+  background-color: #fafafa;        /* Light gray background */
+  font-size       : 0.9rem;         /* Slightly smaller text */
+  line-height     : 1.1;            /* Tighter vertical spacing */
+}
+
+#score-panel h3 {
+  margin-top   : 0;
+  margin-bottom: 0.4rem;
+  text-align   : center;
+  font-size    : 1rem;
+}
+
+#score-table {
+  width          : auto;     /* Don’t stretch columns */
+  border-collapse: collapse; /* Remove gaps between cells */
+  margin         : 0 auto;   /* Center table inside panel */
+}
+
+#score-table th,
+#score-table td {
+  border     : 1px solid #ccc;
+  padding    : 0.2rem 0.4rem; /* Much tighter padding */
+  text-align : center;
+  white-space: nowrap;        /* Prevent column stretching */
+}
+
+#score-table th:first-child,
+#score-table td:first-child {
+  width: 1.5rem;              /* Narrow “Letter” column */
+}
+
+#totals {
+  margin-top : 0.5rem;
+  text-align : center;
+  font-size  : 0.9rem;
+  line-height: 1.2;
+}
+
+/* Container for all option groups */
+#recognition-options {
+  display       : flex;
+  flex-direction: column;     /* Stack each group vertically */
+  align-items   : flex-start; /* Left align everything under the grid */
+  gap           : 12px;       /* Space between each option group */
+  margin-top    : 20px;
+}
+
+/* Each group row */
+.case-options {
+  display              : grid;
+  grid-template-columns: 200px 80px 80px; /* label | yes | no */
+  align-items          : center;
+  gap                  : 10px;
+}
+
+.radiobutton-label {
+  display        : flex;
+  justify-content: space-between; /* text left, icon right */
+  align-items    : center;
+  font-weight    : bold;
+}
+
+.radiobutton-label span {
+  margin-left: 0.5rem; /* space between text and icon */
+}
+
+/* Labels */
+.case-options label {
+  display    : flex;
+  align-items: center;
+  gap        : 5px;
+  cursor     : pointer;
+  font-size  : 1rem;
+}
+
+/* Visual feedback when value is clamped */
+#n-repetitions.clamped {
+  box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.25);
+  transition: box-shadow 0.25s;
+}
+
+img {
+  max-width: 100%;
+  height   : auto;
+}
+
+/* --- responsive --- */
+@media (max-width: 700px) {
+  #fingerspellblock {
+    flex-direction: column;
+    align-items   : center;
+  }
+
+  #hand-container {
+    width    : 100%;
+    max-width: 340px;
+  }
+
+  #fingerspell-container {
+    width          : 100%;
+    justify-content: center;
+  }
+
+  #game-controls {
+    margin-top: 1px;
+  }
+}
+
+/* Responsive for narrow screens */
+@media (max-width: 480px) {
+  #letter-case-options {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .character.white {
+    font-size: 0.9em;
+  }
+
+  #hand-container {
+    width        : 100%;
+    max-width    : 140px;
+    height       : 140px;
+    margin-bottom: 25px;
+  }
+
+  #hand-image {
+    margin-bottom : 3px;
+  }
+
+  #main-image {
+      width       : 70%;
+      height      : auto;
+      aspect-ratio: 4 / 3;
+      margin      : 0 auto;
+      display     : block;
+  }
+
+  #fingerspellgrid img {
+      width       : 55px;
+      height      : auto;
+      aspect-ratio: 4 / 3;
+  }
+
+  /* Container for all option groups */
+  #recognition-options {
+    gap       : 2px; /* Space between each option group */
+    margin-top: 10px;
+  }
+
+  /* Each group row */
+  .case-options {
+    grid-template-columns: 170px 60px 60px; /* label | yes | no */
+    gap                  : 10px;
+  }
+
+  .radiobutton-label span {
+    margin-left: 0.4rem; /* space between text and icon */
+  }
+
+  /* Labels */
+  .case-options label {
+    font-size: 0.9rem;
+  }
+
+  .radiobutton-label span {
+    margin-left: 0.5rem; /* space between text and icon */
+  }
+
+  #letter-case-options {
+    margin-top: 10px;
+  }
+}
+
+#letter-case-options {
+  margin-top: 15px;
+}
+
+.radiobutton-label,
+#input-number-label,
+#exercise-number-label {
+  font-weight: bold;
+}
+
+#timer-display {
+  color      : red;
+  font-weight: bold;
+  margin-top : 15px;
+}
+
+.hidden-recognition-options {
+  display: none !important;
+}
+
+input[disabled] {
+  opacity       : 0.5;
+  pointer-events: none;
+}
+
+#user-info-btn {
+  align: left;
+}
+
+@media (max-width: 480px) {
+  #fingerspellgrid {
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .bottom-section {
+    margin-bottom: 3rem;   /* stop CC licence overlap */
+  }
+
+  #score-box {
+    margin-bottom: 1.5rem;
+  }
+}
+
+</style>
+
+{% endblock %}
+
+{% block fs_content %}
+<h5>Recognition <span id="game-number">1</span></h5>
+<br>
+<div id="fingerspellblock">
+  <!-- display area -->
+  <div id="hand-container">
+    <div id="hand-image">
+      <img id="main-image">
+    </div>
+    <div id="game-controls" class="game-controls">
+      <div id="start-container">
+        <button id="start-btn" class="nav-btn">Start</button>
+        <span id="next-image-info"
+            tabindex="0"
+            class="ms-2 text-primary"
+            role="button"
+            data-bs-toggle="popover"
+            data-bs-trigger="focus"
+            data-bs-html="true"
+            data-bs-container="body"
+            title="Displaying the next image">
+            ℹ️
+        </span>
+
+        <span><button id="stop-btn" class="nav-btn">Stop</button></span>
+      </div>
+
+      <p id="instruction">Choose the matching image</p>
+
+      <div>
+        <p id="game-over">Game Over!</p>
+        <button id="play-again-btn" class="nav-btn">Play again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- grid of clickable letter images -->
+  <div id="fingerspell-container">
+    <div id="fingerspellgrid">
+      {% for letter, frames in letters.items %}
+        <div class="letter" data-letter="{{ letter }}" data-frames="{{ frames|join:',' }}">
+          <img class="letter-image" id="id-{{ letter }}" data-letter="{{ letter }}"
+               src="{% static 'fs/letters/th_'|add:letter|add:frames.0|add:'.jpg' %}"
+               alt="{{ letter }}">
+          <span class="character" id="{{ letter }}">{{ letter|lower }}</span>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div id="timer-display">00:00</div>
+
+    <div id="letter-case-options" class="case-options">
+      <label class="radiobutton-label">Letter case:</label>
+      <label><input type="radio" name="letter-case" value="uppercase">Upper</label>
+      <label><input type="radio" name="letter-case" value="lowercase" checked>Lower</label>
+    </div>
+
+    <div id="recognition-options" class="case-options">
+      <div>
+      <label for="exercise-number" id="exercise-number-label" class="case-options">Exercise (1 to 64):</label>
+      <input id="exercise-number" type="number" name="exercise-number" min="1" max="64" step="1" value="1" {% if not user.is_authenticated %}disabled{% endif %}>
+        <span id="exercise-number-info"
+            tabindex="0"
+            class="ms-2 text-primary"
+            role="button"
+            data-bs-toggle="popover"
+            data-bs-trigger="focus"
+            data-bs-html="true"
+            data-bs-container="body"
+            title="Selecting which exercise">
+            ℹ️
+        </span>
+        {% if not user.is_authenticated %}
+          <span id="login-required" style="color: red;">Login required to use these options</span>
+        {% endif %}
+      </div>
+      <div id="randomisation-options" class="case-options">
+        <label class="radiobutton-label">Randomise images:
+          <span id="randomisation-info"
+              tabindex="0"
+              class="ms-2 text-primary"
+              role="button"
+              data-bs-toggle="popover"
+              data-bs-trigger="focus"
+              data-bs-html="true"
+              data-bs-container="body"
+              title="Random or alphabetical order">
+              ℹ️
+            </span>
+          </label>
+        <label><input type="radio" name="randomisation" value="yes" {% if not user.is_authenticated %}disabled{% endif %}>Yes</label>
+        <label><input type="radio" name="randomisation" value="no" checked>No</label>
+      </div>
+      <div id="timed-options" class="case-options">
+        <label class="radiobutton-label">Timed:
+          <span id="timed-info"
+            tabindex="0"
+            class="ms-2 text-primary"
+            role="button"
+            data-bs-toggle="popover"
+            data-bs-trigger="focus"
+            data-bs-html="true"
+            data-bs-container="body"
+            title="Timed or untimed?">
+            ℹ️
+          </span>
+        </label>
+        <label><input type="radio" name="timed" value="yes" {% if not user.is_authenticated %}disabled{% endif %}>Yes</label>
+        <label><input type="radio" name="timed" value="no" checked>No</label>
+      </div>
+      <div id="repetition-options" class="case-options">
+        <label class="radiobutton-label">Have repetitions:
+          <span id="repetition-info"
+              tabindex="0"
+              class="ms-2 text-primary"
+              role="button"
+              data-bs-toggle="popover"
+              data-bs-trigger="focus"
+              data-bs-html="true"
+              data-bs-container="body"
+              title="Choose 1 or more alphabets">
+              ℹ️
+          </span>
+        </label>
+        <label><input type="radio" name="repetitions" value="yes" {% if not user.is_authenticated %}disabled{% endif %}>Yes</label>
+        <label><input type="radio" name="repetitions" value="no" checked>No</label>
+        <div id="repetitions-div">
+            <label for="n-repetitions" id="input-number-label" class="case-options">Repetitions (1 to 10):</label>
+            <input id="n-repetitions" type="number" name="n-repetitions" min="1" max="10" step="1" value="1">
+        </div>
+      </div>
+      <div id="images-options" class="case-options">
+        <label class="radiobutton-label">Hide images:
+          <span id="images-info"
+              tabindex="0"
+              class="ms-2 text-primary"
+              role="button"
+              data-bs-toggle="popover"
+              data-bs-trigger="focus"
+              data-bs-html="focus"
+              data-bs-container="body"
+              title="Hide or display images?">
+              ℹ️
+          </span>
+        </label>
+        <label><input type="radio" name="hide-images" value="yes" {% if not user.is_authenticated %}disabled{% endif %}>Yes</label>
+        <label><input type="radio" name="hide-images" value="no" checked>No</label>
+      </div>
+      <div id="letters-options" class="case-options">
+        <label class="radiobutton-label">Hide letters:
+          <span id="letters-info"
+              tabindex="0"
+              class="ms-2 text-primary"
+              role="button"
+              data-bs-toggle="popover"
+              data-bs-trigger="focus"
+              data-bs-html="focus"
+              data-bs-container="body"
+              title="Hide or display letters?">
+              ℹ️
+          </span>
+        </label>
+        <label><input type="radio" name="hide-letters" value="yes" {% if not user.is_authenticated %}disabled{% endif %}>Yes</label>
+        <label><input type="radio" name="hide-letters" value="no" checked>No</label>
+      </div>
+      <div id="highlighting-options" class="case-options">
+        <label class="radiobutton-label">Hide highlighting:
+          <span id="highlighting-info"
+              tabindex="0"
+              class="ms-2 text-primary"
+              role="button"
+              data-bs-toggle="popover"
+              data-bs-trigger="focus"
+              data-bs-html="true"
+              data-bs-container="body"
+              title="To highlight or not to highlight, ...">
+              ℹ️
+          </span>
+        </label>
+        <label><input type="radio" name="hide-highlighting" value="yes" {% if not user.is_authenticated %}disabled{% endif %}>Yes</label>
+        <label><input type="radio" name="hide-highlighting" value="no" checked>No</label>
+      </div>
+    </div>
+  </div>
+
+  <div id="score-panel">
+    <h3>Scores</h3>
+    <table id="score-table">
+      <thead>
+        <tr>
+          <th>Letter</th>
+          <th>✓</th>
+          <th>✗</th>
+          <th>%</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for letter in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" %}
+        <tr id="score-{{ letter }}">
+          <td>{{ letter }}</td>
+          <td class="correct">0</td>
+          <td class="wrong">0</td>
+          <td class="percent">0%</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div id="totals">
+      <strong>Correct:</strong> <span id="total-correct">0</span> |
+      <strong>Wrong:</strong> <span id="total-wrong">0</span> |
+      <strong>Overall:</strong> <span id="overall-percent">0%</span>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block fs_script %}
+<script>
+// Capital letters are everywhere for the letter, except for when displaying it
+
+let isRandomArray    = false;
+let isTimed          = false;
+let hasRepetitions   = false;
+let nReps            = 1;
+let nLetters         = 26 * nReps;
+let hideImages       = false;
+let hideHighlights   = false;
+let game             = 1;
+
+// Get all letter cells
+const letterCells    = document.querySelectorAll('#fingerspellgrid .letter');
+
+const gameNumberEl     = document.getElementById("game-number");
+const handImageEl      = document.getElementById("hand-image");
+const startBtn         = document.getElementById("start-btn");
+const stopBtn          = document.getElementById("stop-btn");
+const playAgainBtn     = document.getElementById("play-again-btn");
+const startContainer   = document.getElementById("start-container");
+const timerDisplay     = document.getElementById("timer-display");
+const repetitionsDiv   = document.getElementById("repetitions-div");
+const exerciseNumberEl = document.getElementById('exercise-number');
+
+stopBtn       .style.display = 'none';
+timerDisplay  .style.display = 'none'; // Default
+repetitionsDiv.style.display = 'none'; // Default
+
+let displayedLetter = null;
+let displayedCell   = null;
+
+let numberDone = 0;
+let randomIndexes;
+
+let startTime;
+let elapsedTime = 0;
+let durationTimer;
+
+const scores = {};
+for (const letter of "ABCDEFGHIJKLMNOPQRSTUVWXYZ") {
+  scores[letter] = { correct: 0, wrong: 0 };
+}
+
+// Controller for main display animation
+let currentAnimation = null;
+
+// Controller map for looping grid letters ('H' and 'J')
+const thumbnailAnimations = new Map();
+
+const frameDuration = 250;  // ms per frame
+const gapDuration   = 1000; // ms pause between loops
+
+// Get all the images
+const letterImages = document.querySelectorAll(".letter-image");
+const lettersEl    = document.querySelectorAll(".letter-image");
+
+// Get list of all the 'character' spans
+const characterSpans = document.querySelectorAll(".character");
+
+// Get list of 'letter-case' radio buttons
+const letterCaseRadios = document.querySelectorAll('input[name="letter-case"]');
+
+// Get lists of radio buttons
+const randomisationRadios    = document.querySelectorAll('input[name="randomisation"]');
+const timedRadios            = document.querySelectorAll('input[name="timed"]');
+const repetitionsRadios      = document.querySelectorAll('input[name="repetitions"]');
+const hideImagesRadios       = document.querySelectorAll('input[name="hide-images"]');
+const hideLettersRadios      = document.querySelectorAll('input[name="hide-letters"]');
+const hideHighlightingRadios = document.querySelectorAll('input[name="hide-highlighting"]');
+
+const recognitionOptions = document.getElementById("recognition-options");
+
+// Update what appears on the screen given the properties of the exercise
+
+function setTimerDisplayElements(isTimed=false) {
+  const timedRadio = document.querySelector(`input[name="timed"][value="${isTimed ? 'yes' : 'no'}"]`);
+  if (timedRadio) {
+    timedRadio.checked = true;
+  }
+
+  if (isTimed)
+    timerDisplay.style.display = 'block';
+  else
+    timerDisplay.style.display = 'none';
+}
+
+function setHasRepetitionsElements(hasRepetitions) {
+  const hasRepetitionsRadio = document.querySelector(`input[name="repetitions"][value="${hasRepetitions ? 'yes' : 'no'}"]`);
+  if (hasRepetitionsRadio) {
+    hasRepetitionsRadio.checked = true;
+  }
+
+  if (hasRepetitions)
+    repetitionsDiv.style.display = 'block';
+  else
+    repetitionsDiv.style.display = 'none';
+}
+
+function resetMainImage() {
+  const oldImg = handImageEl.querySelector('img');
+  if (oldImg) {
+    oldImg.remove();
+  }
+  const img = document.createElement('img');
+  img.id    = 'main-image';
+
+  handImageEl.appendChild(img);
+}
+
+function setImageDisplayElements(hideImages=false) {
+  const hideImagesRadio = document.querySelector(`input[name="hide-images"][value="${hideImages ? 'yes' : 'no'}"]`);
+  if (hideImagesRadio) {
+    hideImagesRadio.checked = true;
+  }
+
+  let colour;
+
+  if (hideImages) {
+    visibility = "hidden";
+    colour     = 'black';
+  } else {
+    visibility = "visible";
+    colour     = 'white';
+  }
+
+  letterImages.forEach(letter => letter.style.visibility = visibility);
+
+  characterSpans.forEach(span => {
+    span.classList.remove("black", "white");
+    span.classList.add(colour);
+  });
+}
+
+function setLetterDisplayElements(hideLetters=false) {
+  const hideLettersRadio = document.querySelector(`input[name="hide-letters"][value="${hideLetters ? 'yes' : 'no'}"]`);
+  if (hideLettersRadio) {
+    hideLettersRadio.checked = true;
+  }
+  let colour;
+
+  if (hideLetters) {
+    visibility = "hidden";
+    colour     = 'black';
+  } else {
+    visibility = "visible";
+
+    if (hideImages)
+      colour = 'black';
+    else
+      colour = 'white';
+  }
+
+  characterSpans.forEach(span => {
+    span.style.visibility = visibility;
+
+    span.classList.remove("black", "white");
+    span.classList.add(colour);
+  });
+}
+
+function setHideHighlightsRadio(hideHighlights) {
+  const hideHighlightsRadio = document.querySelector(`input[name="hide-highlighting"][value="${hideHighlights ? 'yes' : 'no'}"]`);
+  if (hideHighlightsRadio) {
+    hideHighlightsRadio.checked = true;
+  }
+}
+
+// Initialise the display of images and their corresponding letters
+setImageDisplayElements(hideImages);
+
+function startTimer() {
+  stopTimer(); // In case one is already in existence
+
+  startTime = Date.now(); // - elapsedTime; if have a pause button and resume from previous elapsed time
+
+  durationTimer = setInterval(function displayTime() {
+    elapsedTime = Date.now() - startTime;
+
+    let hours   = Math.floor( elapsedTime / (1000 * 60 * 60));
+    let minutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
+    let seconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
+
+    hours   = String(hours)  .padStart(2, '0');
+    minutes = String(minutes).padStart(2, '0');
+    seconds = String(seconds).padStart(2, '0');
+
+    if (hours > 0) {
+      timerDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+    } else {
+      timerDisplay.textContent = `${minutes}:${seconds}`;
+    }
+  }, 1000); // Update every second
+}
+
+function stopTimer() {
+  clearInterval(durationTimer);
+}
+
+const grid = document.getElementById("fingerspellgrid");
+const letters = Array.from(grid.children);
+const originalOrder = letters.slice(); // make a copy
+
+function shuffleArray(array) {
+  // Fisher–Yates shuffle
+  for (let i = array.length - 1; i > 0; --i) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+
+  return array;
+}
+
+function render(array) {
+  // remove existing children and re-add in given order
+  grid.innerHTML = "";
+  array.forEach(element => grid.appendChild(element));
+}
+
+{% if user.is_authenticated %}
+function setExerciseNumber() {
+  // Combine the 6 boolean globals into a 6-bit number.
+  // Bit order: 5 4 3 2 1 0
+  const bits =
+      (isRandomArray  ? 0b100000 : 0)
+    | (isTimed        ? 0b010000 : 0)
+    | (hasRepetitions ? 0b001000 : 0)
+    | (hideImages     ? 0b000100 : 0)
+    | (hideLetters    ? 0b000010 : 0)
+    | (hideHighlights ? 0b000001 : 0);
+
+  // Exercise numbers are 1-based, so add 1
+  const exerciseNumber = bits + 1;
+
+  // Update the input field if present
+  exerciseNumberEl.value   = exerciseNumber;
+  gameNumberEl.textContent = exerciseNumber;
+}
+{% endif %}
+
+function setIsRandomArray(isRandomArray) {
+  const randomisationRadio = document.querySelector(`input[name="randomisation"][value="${isRandomArray ? 'yes' : 'no'}"]`);
+
+  if (randomisationRadio) {
+    randomisationRadio.checked = true;
+  }
+
+  if (isRandomArray) {
+    render(shuffleArray(letters.slice()));  // shuffle a copy
+  } else {
+    render(originalOrder);
+  }
+}
+
+{% if user.is_authenticated %}
+document.querySelectorAll('input[name="randomisation"]').forEach(radio => {
+  radio.addEventListener("change", (e) => {
+    isRandomArray = (e.target.value === "yes");
+    setIsRandomArray(isRandomArray);
+    setExerciseNumber();
+  });
+});
+
+function updateRadioButtons(exerciseNumber) {
+  // Convert to zero-based index (so Exercise 1 → 0b00000)
+  const bits = exerciseNumber - 1;
+
+  // Extract bit values
+  isRandomArray  = !!(bits & 0b100000);
+  isTimed        = !!(bits & 0b010000);
+  hasRepetitions = !!(bits & 0b001000);
+  hideImages     = !!(bits & 0b000100);
+  hideLetters    = !!(bits & 0b000010);
+  hideHighlights = !!(bits & 0b000001);
+
+  // Call the appropriate update functions
+  setIsRandomArray         (isRandomArray);
+  setTimerDisplayElements  (isTimed);
+  setHasRepetitionsElements(hasRepetitions);
+  setImageDisplayElements  (hideImages);
+  setLetterDisplayElements (hideLetters);
+  setHideHighlightsRadio   (hideHighlights);
+};
+{% endif %}
+
+// Utility to stop any running animation
+function stopCurrentAnimation() {
+  if (currentAnimation) {
+    clearInterval(currentAnimation.interval);
+    clearTimeout (currentAnimation.timeout);
+
+    currentAnimation = null;
+  }
+}
+
+function resetCounters() {
+  for (const i in scores) {
+    scores[i].correct = 0;
+    scores[i].wrong   = 0;
+  }
+
+  // Reset each row in the A–Z table
+  document.querySelectorAll("tbody tr").forEach(row => {
+    row.querySelector(".correct").textContent = "0";
+    row.querySelector(".wrong")  .textContent = "0";
+    row.querySelector(".percent").textContent = "0%";
+  });
+
+  // Reset the totals section
+  document.getElementById("total-correct")  .textContent = "0";
+  document.getElementById("total-wrong")    .textContent = "0";
+  document.getElementById("overall-percent").textContent = "0%";
+}
+
+function getRandomAlphabetOrder() {
+  // Create an array of nLetters integers
+  const letterNumbers = Array.from({ length: nLetters }, (_, i) => String(i % 26));
+
+  let randomNumbers = [];
+
+  // Same logic as your Python loop
+  for (let i = letterNumbers.length - 1; i >= 0; --i) {
+    let j     = Math.floor(Math.random() * (i + 1)); // random index from 0 to i
+    let index = letterNumbers.splice(j, 1)[0]; // remove the letter at index j
+
+    randomNumbers.push(index);
+  }
+
+  return randomNumbers;
+}
+
+// Display a letter - animated if needed
+function displayLetter(letter, frames) {
+  // Stop any previous animation first
+  stopCurrentAnimation();
+
+  // Always show the first frame immediately
+  let index = 0;
+
+  const showFrame = () => {
+    const suffix = frames[index] || "";
+
+    const mainImg = handImageEl.querySelector('#main-image');
+
+    mainImg.src = `/static/fs/letters/th_${letter}${suffix}.jpg`;
+    mainImg.alt = `Finger-spelled letter ${letter}`;
+
+    index = (index + 1) % frames.length;
+  };
+
+  showFrame();
+
+  // Animate only if multiple frames
+  if (frames.length > 1) {
+    // Animation loop function
+    const startAnimationLoop = () => {
+      let frameInterval = setInterval(() => {
+        showFrame();
+        if (index === 0) {
+          // Completed a full loop of frames
+          clearInterval(frameInterval);
+          // Start next loop after 500 ms
+          currentAnimation.timeout = setTimeout(startAnimationLoop, gapDuration);
+        }
+      }, frameDuration);
+
+      // Store interval handle globally
+      currentAnimation = { interval: frameInterval };
+    };
+
+    // Start the first loop
+    startAnimationLoop();
+  }
+}
+
+// Generic function to start a looping animation on a given <img>
+function startLoopingAnimation(imgElement, letter, frames, folder = "/static/fs/letters/") {
+  let index = 0;
+
+  const showFrame = () => {
+    const suffix = frames[index] || "";
+    imgElement.src = `${folder}th_${letter}${suffix}.jpg`;
+    imgElement.alt = `Finger-spelled letter ${letter}`;
+    index = (index + 1) % frames.length;
+  };
+
+  const loop = () => {
+    let interval = setInterval(() => {
+      showFrame();
+      if (index === 0) {
+        clearInterval(interval);
+        // Wait a gap then restart
+        const timeout = setTimeout(loop, gapDuration);
+        thumbnailAnimations.set(letter, { interval: null, timeout });
+      }
+    }, frameDuration);
+
+    thumbnailAnimations.set(letter, { interval });
+  };
+
+  // Kick it off
+  showFrame();
+  loop();
+}
+
+// Stop a looping thumbnail animation
+function stopThumbnailAnimation(letter) {
+  const anim = thumbnailAnimations.get(letter);
+  if (anim) {
+    clearInterval(anim.interval);
+    clearTimeout(anim.timeout);
+    thumbnailAnimations.delete(letter);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Start looping animations for 'H' and 'J'
+  ["H", "J"].forEach(letter => {
+    const cell = document.querySelector(`.letter[data-letter="${letter}"]`);
+
+    if (cell) {
+      const img = cell.querySelector("img");
+      const frames = cell.dataset.frames.split(",");
+
+      if (frames.length > 1) {
+       startLoopingAnimation(img, letter, frames);
+      }
+    }
+  });
+});
+
+function displayFSLetter() {
+  // If there are letters, pick one randomly
+  if (letterCells.length > 0) {
+    const randomCell  = letterCells[randomIndexes[numberDone++]]; // post-increment is necessary here
+    const randomImage = randomCell.querySelector('img');
+
+    // Display its frame(s)
+    const letter = randomImage.dataset.letter;
+    const frames = randomCell.dataset.frames.split(',');
+
+    displayLetter(letter, frames);
+
+    return [letter, randomImage];
+  } else {
+    return [null, null];
+  }
+}
+
+function clearHighlightsAndLetters(includeCorrectAnswers=false, includeMainImage=false) {
+  if (includeCorrectAnswers) {
+      // Remove both red and blue highlights
+      document.querySelectorAll('#fingerspellgrid .letter')
+        .forEach(cell => cell.classList.remove('correct', 'wrong'));
+
+    if (!hideImages)
+      document.querySelectorAll('.character')
+        .forEach(span => {
+             span.classList.remove("black", "white");
+             span.classList.add("white");
+           }
+         );
+  } else { // Clear wrong answers only
+    if (!hideImages) {
+      document.querySelectorAll('#fingerspellgrid .letter.wrong .character')
+        .forEach(span => {
+          span.classList.remove("black", "white");
+          span.classList.add(hideImages ? "black" : "white");
+        });
+    }
+
+    // Remove red highlights
+    document.querySelectorAll('#fingerspellgrid .letter.wrong')
+      .forEach(cell => cell.classList.remove('wrong'));
+
+    // Also clear 'correct' highlights too if not all repetitions of the letter have been found yet.
+    document.querySelectorAll('#fingerspellgrid .letter').forEach(cell => {
+      const img    = cell.querySelector("img");
+      const letter = img.dataset.letter.toUpperCase();
+      const span   = cell.querySelector('span.character');
+
+      if (scores[letter].correct < nReps) {
+        cell.classList.remove('correct');
+        span.classList.remove("black", "white");
+        span.classList.add(hideImages ? "black" : "white");
+      }
+    });
+  }
+
+  if (includeMainImage) {
+    resetMainImage();
+  }
+}
+
+stopBtn.addEventListener('click', () => {
+  stopTimer();
+
+  stopBtn.style.display = 'none';
+
+  document.getElementById('instruction').style.display = 'none';
+  startContainer.style.display = 'block';
+
+  recognitionOptions.classList.remove('hidden-recognition-options');
+  clearHighlightsAndLetters(true, true);
+  startBtn.textContent = 'Start';
+
+  letterImages.forEach(image => image.style.visibility = "visible");
+
+  characterSpans.forEach(span => {
+    span.classList.remove("black");
+    span.classList.add("white");
+  });
+
+  resetCounters();
+});
+
+startBtn.addEventListener('click', () => {
+  if (startBtn.textContent === 'Start') {
+    if (hasRepetitions) {
+      nReps = document.getElementById("n-repetitions").value;
+    } else {
+      nReps = 1;
+    }
+
+    nLetters = 26 * nReps; // Must be determined before getting the randomIndexes
+
+    recognitionOptions.classList.add('hidden-recognition-options');
+
+    // Get the indexes of the randomly-ordered alphabet
+    numberDone = 0;
+    randomIndexes = getRandomAlphabetOrder();
+
+    // Remove all previous highlights and letters, and the main image
+    clearHighlightsAndLetters(true, true);
+
+    document.getElementById('instruction').style.display = 'block';
+    startContainer.style.display = 'none';
+    startBtn.textContent         = 'play';
+    stopBtn.style.display        = 'block';
+
+    const [letter, image] = displayFSLetter();
+    displayedLetter = letter;
+    displayedImage  = image;
+
+    if (isTimed)
+      startTimer();
+  }
+  else if (startBtn.textContent === 'Next') {
+    if (!hideHighlights) { // i.e. retain highlights of 'correct' answers
+      // Remove previous letters & highlights for wrong answers, but not the main image
+      clearHighlightsAndLetters(false, false);
+    } else { // Do not retain highlights of 'correct' answers
+      // Remove previous letters & highlights for correct & wrong answers, but not the main image
+      clearHighlightsAndLetters(true, false);
+    }
+
+    document.getElementById('instruction').style.display = 'block';
+    startContainer.style.display = 'none';
+    startBtn.textContent = 'play';
+
+    const [letter, image] = displayFSLetter();
+    displayedLetter = letter;
+    displayedImage  = image;
+  } else { // startBtn.textContent = 'Play', which is not seen
+    document.getElementById('instruction').style.display = 'none';
+    startBtn.textContent = 'Next';
+    startContainer.style.display = 'block';
+  }
+});
+
+document.addEventListener('keydown', function(event) {
+  if (event.key === ' ' || event.code === 'Space') {
+    // Always prevent scrolling when Space is pressed
+    event.preventDefault(); // Prevent the default action of the spacebar (e.g., scrolling)
+
+    if (startContainer.style.display === 'none') {
+      return;
+    }
+
+    if (startBtn.style.display === 'none' || startBtn.textContent !== "Next") {
+      return;
+    }
+
+    if (window.getComputedStyle(playAgainBtn).display !== 'none') {
+        return;
+    }
+
+    // Programmatically trigger a click on the button
+    if (startBtn) {
+        startBtn.click();
+    }
+  }
+});
+
+letterCells.forEach(cell => {
+  cell.addEventListener('click', () => {
+    if ((startBtn.textContent === 'Start') || (startBtn.textContent === 'Next'))
+      return;
+
+    const img  = cell.querySelector('img');
+    const span = cell.querySelector('span.character');
+
+    // show the letter
+    displayedLetterCase = getSelectedLetterCase();
+
+    if (displayedLetterCase === "uppercase")
+      span.textContent = img.dataset.letter.toUpperCase();
+    else
+      span.textContent = img.dataset.letter.toLowerCase();
+
+    if (img.dataset.letter === displayedLetter) {
+      cell.classList.add('correct');
+      updateScore(displayedLetter, true);  // correct answer
+
+      if (numberDone == nLetters) { // Game over
+        stopTimer();
+
+        document.getElementById('instruction').style.display = 'none';
+        startBtn.textContent = 'Start';
+        document.getElementById('game-over').style.display = 'inline-block';
+        startContainer.style.display = 'none';
+        playAgainBtn.style.display = 'inline-block';
+
+        resetMainImage();
+      } else {
+        document.getElementById('instruction').style.display = 'none';
+        startBtn.textContent = 'Next';
+        startContainer.style.display = 'block';
+      }
+    } else {
+      cell.classList.add('wrong');
+      updateScore(displayedLetter, false); // wrong answer
+    }
+  });
+});
+
+playAgainBtn.addEventListener('click', () => {
+  // Remove all previous highlights and letters, and the main image
+  clearHighlightsAndLetters(true, true);
+  resetCounters();
+
+  playAgainBtn.style.display = 'none';
+  document.getElementById('game-over').style.display = 'none';
+  startContainer.style.display = 'block';
+
+  recognitionOptions.classList.remove('hidden-recognition-options');
+});
+
+// Get all radio buttons with the name "letter-case"
+const radioButtons = document.querySelectorAll('input[name="letter-case"]');
+
+// Function to update the case
+function updateAllLetterCase(value) {
+  characterSpans.forEach(span => {
+    if (value === "lowercase") {
+      span.textContent = span.textContent.toLowerCase();
+    } else {
+      span.textContent = span.textContent.toUpperCase();
+    }
+  });
+};
+
+letterCaseRadios.forEach(radio => {
+  radio.addEventListener("change", (event) => {
+    if (event.target.checked) {
+      updateAllLetterCase(event.target.value);
+    }
+  });
+});
+
+{% if user.is_authenticated %}
+// Function to update 'timed'
+function updateTimed(isTimed) {
+  setTimerDisplayElements(isTimed);
+};
+
+timedRadios.forEach(radio => {
+  radio.addEventListener("change", (event) => {
+    isTimed = (event.target.value === "yes");
+
+    if (event.target.checked) {
+      updateTimed(isTimed);
+      setExerciseNumber();
+    }
+  });
+});
+
+function updateRepetitions(hasRepetitions) {
+  setHasRepetitionsElements(hasRepetitions);
+};
+
+repetitionsRadios.forEach(radio => {
+  radio.addEventListener("change", (event) => {
+    hasRepetitions = (event.target.value === "yes");
+
+    if (event.target.checked) {
+      updateRepetitions(hasRepetitions);
+      setExerciseNumber();
+    }
+  });
+});
+
+function updateHideImages(hideImages) {
+  setImageDisplayElements(hideImages);
+};
+
+hideImagesRadios.forEach(radio => {
+  radio.addEventListener("change", (event) => {
+    hideImages = (event.target.value === 'yes');
+
+    if (event.target.checked) {
+      updateHideImages(hideImages);
+      setExerciseNumber();
+    }
+  });
+});
+
+function updateHideLetters(hideLetters) {
+  setLetterDisplayElements(hideLetters);
+};
+
+hideLettersRadios.forEach(radio => {
+  radio.addEventListener("change", (event) => {
+    hideLetters = (event.target.value === 'yes');
+
+    if (event.target.checked) {
+      updateHideLetters(hideLetters);
+      setExerciseNumber();
+    }
+  });
+});
+
+hideHighlightingRadios.forEach(radio => {
+  radio.addEventListener("change", (event) => {
+    hideHighlights = event.target.value === 'yes';
+
+    if (event.target.checked) {
+      setHideHighlightsRadio(hideHighlights);
+      setExerciseNumber();
+    }
+  });
+});
+{% endif %}
+
+function getSelectedLetterCase() {
+  const selectedRadio = document.querySelector('input[name="letter-case"]:checked');
+
+  if (selectedRadio) {
+    return selectedRadio.value;
+  } else {
+    return null; // No radio button is selected
+  }
+}
+
+function updateScore(letter, isCorrect) {
+  if (!scores[letter]) return;
+
+  // Update the stats
+  if (isCorrect)
+    ++scores[letter].correct;
+  else
+    ++scores[letter].wrong;
+
+  const total   = scores[letter].correct + scores[letter].wrong;
+  const percent = total > 0 ? Math.round((scores[letter].correct / total) * 100) : 0;
+
+  // Update the display
+  const row = document.getElementById(`score-${letter}`);
+  row.querySelector('.correct').textContent = scores[letter].correct;
+  row.querySelector('.wrong')  .textContent = scores[letter].wrong;
+  row.querySelector('.percent').textContent = percent + '%';
+
+  // Update totals
+  let totalCorrect = 0, totalWrong = 0;
+  for (const i in scores) {
+    totalCorrect += scores[i].correct;
+    totalWrong   += scores[i].wrong;
+  }
+
+  const totalOverall   = totalCorrect + totalWrong;
+  const overallPercent = totalOverall > 0 ? Math.round((totalCorrect / totalOverall) * 100) : 0;
+
+  document.getElementById('total-correct')  .textContent = totalCorrect;
+  document.getElementById('total-wrong')    .textContent = totalWrong;
+  document.getElementById('overall-percent').textContent = overallPercent + '%';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Select all number inputs you want to clamp
+  const inputs = document.querySelectorAll('#n-repetitions, #exercise-number');
+  if (!inputs.length)
+    return;
+
+  function clamp(input) {
+    const min = parseInt(input.min, 10);
+    const max = parseInt(input.max, 10);
+    const raw = input.value.trim();
+
+    // Allow blank temporarily
+    if (raw === '')
+      return;
+
+    // Check numeric
+    const num = Number(raw);
+    if (!Number.isFinite(num)) {
+      input.value = min;
+      flash(input);
+      return;
+    }
+
+    // Enforce integer (reject decimals)
+    if (!Number.isInteger(num)) {
+      input.value = Math.round(num);
+      flash(input);
+      return;
+    }
+
+    // Clamp range
+    if (num < min) {
+      input.value = min;
+      flash(input);
+    } else if (num > max) {
+      input.value = max;
+      flash(input);
+    }
+  }
+
+  // Flash animation
+  function flash(el) {
+    el.classList.add('clamped');
+    setTimeout(() => el.classList.remove('clamped'), 300);
+  }
+
+  // Attach listeners for each relevant input
+  inputs.forEach(input => {
+    input.addEventListener('input',  () => {
+      clamp(input); // while typing
+
+      if (input.id === 'exercise-number') {
+        updateRadioButtons(parseInt(input.value, 10));
+        gameNumberEl.textContent = input.value;
+      }
+    })
+
+    input.addEventListener('change', () => {
+      clamp(input); // after change
+
+      if (input.id === 'exercise-number')
+        updateRadioButtons(parseInt(input.value, 10));
+        gameNumberEl.textContent = input.value;
+    })
+
+    input.addEventListener('blur',   () => {
+      clamp(input); // on leaving field
+
+      if (input.id === 'exercise-number')
+        updateRadioButtons(parseInt(input.value, 10));
+        gameNumberEl.textContent = input.value;
+    })
+  });
+
+  function makePopover(id, htmlText) {
+    new bootstrap.Popover(document.getElementById(id), {
+      content: htmlText,
+      html: true
+    });
+  }
+
+  const nextImageInfo = `
+    After starting, press the <strong>Spacebar</strong> to display the next image.<br><br>
+    This will reduce your time to complete the exercise, because you can use one hand for the mouse and the other hand for the spacebar.
+  `;
+
+  const exerciseNumberInfo = `
+    Either:<br><br>
+    1. Enter the exercise number you want,<br><br>
+    or<br><br>
+    2. Specify each of the 5 options below.<br><br>
+    Higher exercises are more difficult.<br>
+    Start at exercise 1 and build up gradually.
+  `;
+
+  const randomisationInfo = `
+    Options are:<br><br>
+    Yes: images in random order<br><br>
+    or<br><br>
+    No: Images in alphabetical order.<br><br>
+    A random order trains the mind more.
+  `;
+
+  const timedInfo = `
+    Timing onself provides challenges for yourself.<br><br>
+    You can compare with other people too.
+  `
+  const repetitionInfo = `
+    Having more than 1 repeated alphabet is challenging and provides repetition in one exercise.<br><br>
+    10 alphabets would provide 260 letters in the one exercise.
+  `
+  const imagesInfo = `
+    Hiding the images requires that you know the letter of the image being matched.<br><br>
+    This makes it more difficult and trains the mind in a different way.
+  `
+  const highlightingInfo = `
+    After correctly (blue) or incorrectly (red) selecting the matching letter, the border around the image can be removed or remain.<br><br>
+    Removing the highlight makes it more difficult.
+  `
+
+  makePopover("next-image-info"     , nextImageInfo);
+  makePopover("exercise-number-info", exerciseNumberInfo);
+  makePopover("randomisation-info"  , randomisationInfo);
+  makePopover("timed-info"          , timedInfo);
+  makePopover("repetition-info"     , repetitionInfo);
+  makePopover("images-info"         , imagesInfo);
+  makePopover("highlighting-info"   , highlightingInfo);
+
+});
+</script>
+{% endblock %}

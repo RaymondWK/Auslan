@@ -1,0 +1,106 @@
+<!--
+fs/templates/fs/reader.html
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+-->
+
+{% extends "fs/layout.html" %}
+{% load static %}
+
+{% block title %}: Trainer: Reader{% endblock %}
+
+{% block fs_style %}
+    <link rel="stylesheet" href="{% static 'fs/css/reader.css' %}">
+{% endblock %}
+
+{% block fs_content %}
+<h5>Reader</h5>
+
+  <div class="container-fluid">
+    <!-- Input -->
+    <div id="input-area" class="mb-3">
+      <label for="sourceText" class="form-label input-label">The text:&nbsp&nbsp&nbsp
+        <span id="content-the-text"
+            tabindex="1"
+            class="ms-2 text-primary"
+            role="button"
+            data-bs-toggle="popover"
+            data-bs-html="true"
+            data-bs-container="body"
+            title="Getting started">
+            ℹ️
+          </span>
+      </label>
+      <label id="letter-count-label" class="input-label">Characters:</label>
+      <span id="letter-count">0</span>
+      <textarea id="sourceText" class="form-control" rows="3"></textarea>
+    </div>
+
+    <!-- Orientation -->
+    <div id="modes" class="mb-3">
+      <div class="form-check form-check-inline">
+        <label class="form-check-label input-label" for="modeH">Horizontal</label>
+        <input class="form-check-input" type="radio" name="mode" id="modeH" checked>
+      </div>
+      <div class="form-check form-check-inline">
+        <label class="form-check-label input-label" for="modeV">Vertical</label>
+        <input class="form-check-input" type="radio" name="mode" id="modeV">
+      </div>
+    </div>
+
+    <div class="slider-grid">
+      <div class="slider-row">
+        <label for="card-size-slider" class="input-label">Card size:</label>
+
+        <div class="slider-group">
+          <input type="range" id="card-size-slider" min="48" max="192" value="64">
+          <span id="image-width">64</span>
+        </div>
+      </div>
+
+      <div class="slider-row">
+        <label for="scroll-speed-slider" class="input-label">Card speed:</label>
+
+        <div class="slider-group">
+          <input type="range" id="scroll-speed-slider" min="10" max="500" value="30">
+          <span id="speed">30</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="hand-image">
+      <img id="test-image" src="{% static 'fs/letters/th_A.jpg' %}" alt="Finger-spelled letter A">
+    </div>
+
+
+    <!-- Displays -->
+    <div id="display-horizontal" class="mb-3">
+      <div id="scroll-strip" class="scroll-strip cols-12">
+        <!-- JS fill this -->
+      </div>
+    </div>
+
+    <div id="display-vertical" class="mb-3">
+      <span id="duplicate-count"></span>
+      <img id="vertical-image">
+    </div>
+
+
+    <!-- Controls -->
+    <div class="mb-3">
+      <button id="start-btn" class="btn btn-md responsive-btn btn-primary">Start</button>
+      <button id="pause-btn" class="btn btn-md responsive-btn btn-dark">Pause</button>
+      <button id="stop-btn"  class="btn btn-md responsive-btn btn-danger">Stop</button>
+      <button id="check-btn" class="btn btn-md responsive-btn btn-success">Check</button>
+    </div>
+
+    <!-- Typing -->
+    <div class="mb-3">
+      <label for="typed-text" class="form-label input-label">Type the FS words:</label>
+      <textarea id="typed-text" class="form-control" rows="3"></textarea>
+    </div>
+  </div>
+{% endblock %}
+
+{% block fs_script %}
+  <script src="{% static 'fs/js/reader.js' %}"></script>
+{% endblock %}

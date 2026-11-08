@@ -1,0 +1,79 @@
+<!--
+fs/templates/fs/layout.html
+Copyright &copy 2025 Dr. Raymond William Kennington Ph.D.
+-->
+
+{% extends "base/layout.html" %}
+{% load static %}
+
+{% block title %}: FS Trainer{% endblock %}
+
+{% block style %}
+    <link href="{% static 'fs/styles.css' %}" rel="stylesheet">
+    {% block fs_style %}{% endblock %}
+{% endblock %}
+
+{% block heading %}FS Trainer{% endblock %}
+
+{% block menu %}
+    {{ block.super }}
+    <!-- Optionally override or add fs-specific items -->
+{% endblock %}
+
+{% block content %}
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#fsMenu"
+                    aria-controls="fsMenu"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+          <div class="collapse navbar-collapse" id="fsMenu">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'intro' %}active{% endif %}"
+                        href="{% url 'fs:intro' %}">Intro</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'letters' %}active{% endif %}"
+                        href="{% url 'fs:letters' %}">Letters</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'recognition' %}active{% endif %}"
+                        href="{% url 'fs:recognition' %}">Recognition</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'memory' %}active{% endif %}"
+                        href="{% url 'fs:memory' %}">Memory</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'blockwords' %}active{% endif %}"
+                        href="{% url 'fs:blockwords' %}">BlockWords</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'reader' %}active{% endif %}"
+                        href="{% url 'fs:reader' %}">Reader</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="flex-grow-1">
+        {% block fs_content %}{% endblock %}
+    </div>
+    <div id="copyright-footer">
+        The fingerspelled images on this site are licensed under
+        <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">
+            Creative Commons BY-NC-ND 4.0
+        </a>.
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block script %}
+    {% block fs_script %}{% endblock %}
+{% endblock %}

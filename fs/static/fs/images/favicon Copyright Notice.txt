@@ -1,0 +1,2 @@
+// fs/static/fs/images/favicon.png
+// Copyright © 2025 Dr. Raymond William Kennington Ph.D.

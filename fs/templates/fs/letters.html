@@ -1,0 +1,462 @@
+<!--
+fs/templates/fs/letters.html
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+-->
+
+{% extends "fs/layout.html" %}
+{% load static %}
+
+{% block title %}: Trainer: Letters{% endblock %}
+
+{% block fs_style %}
+<style>
+:root {
+  --old-gold: #cfb53b;
+  --sign    : #4b62ae;
+}
+
+h5 {
+  color: var(--old-gold);
+}
+
+.fs-content h5 {
+  text-align: left !important;
+}
+
+#noscript-message {
+  margin     : 2rem;
+  font-family: sans-serif;
+  text-align : center;
+  font-size  : 24px;
+  line-height: 2;
+}
+
+body {
+  font-family: sans-serif;
+  background : #fafafa;
+  text-align : center;
+  margin     : 0;
+}
+
+/* main layout */
+#fingerspellblock {
+  display        : flex;
+  flex-wrap      : wrap;
+  justify-content: center;
+  gap            : 20px;
+  padding        : 10px;
+}
+
+/* left: display area */
+#handcontainer {
+  width          : 100%;
+  max-width      : 320px;
+  margin         : 0 auto;
+  display        : flex;
+  justify-content: center;
+}
+
+#handimage {
+  position        : relative;
+  height          : 240px;
+  width           : 300px;
+  background-color: var(--sign);
+  border          : 4px solid black;
+  margin          : auto;
+}
+
+#mainimg {
+  position  : absolute;
+  top       : 48px;
+  left      : 53px;
+  width     : 192px;
+  height    : 144px;
+  object-fit: contain;
+}
+
+/* right: grid */
+#fingerspell-container {
+  flex           : 1;
+  min-width      : 260px;
+  max-width      : 700px;
+  display        : flex;
+  justify-content: center;
+  align-items    : flex-start;
+}
+
+#fingerspellgrid {
+  display              : grid;
+  grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+  gap                  : 8px;
+  width                : 100%;
+  max-width            : 500px;
+}
+
+#fingerspellgrid img.selected {
+  border-color: yellow;
+  border      : 3px solid yellow;
+  box-shadow  : 0 0 6px #28a745;
+}
+
+#fingerspellgrid div {
+  position  : relative;
+  text-align: center;
+}
+
+#fingerspellgrid img {
+  width        : 100%;
+  height       : auto;
+  aspect-ratio : 4 / 3;
+  border       : 2px solid #ddd;
+  border-radius: 0px; /* CC ND license strictly prohibits alteration of the images - so no rounding! */
+  transition   : transform 0.2s ease, border-color 0.2s;
+  cursor       : pointer;
+}
+
+#fingerspellgrid img:hover {
+  transform   : scale(1.05);
+  border-color: #4b62ae;
+}
+
+#fingerspellgrid div span {
+  position   : absolute;
+  bottom     : -2px;
+  left       : 0;
+  width      : 100%;
+  color      : white;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px black;
+  font-size  : 0.9em;
+}
+
+#letter-case-options {
+  margin-top  : 15px;
+  margin-left : auto;
+  margin-right: auto;
+  width       : fit-content;    /* shrink to content size */
+}
+
+.radiobutton-label {
+  display        : flex;
+  justify-content: space-between; /* text left, icon right */
+  align-items    : center;
+  font-weight    : bold;
+}
+
+.radiobutton-label span {
+  margin-left: 0.5rem; /* space between text and icon */
+}
+
+#letter-case-options {
+  display        : flex;
+  align-items    : center;
+  gap            : 15px;   /* spacing between label and buttons */
+  justify-content: center;
+}
+
+#letter-case-options > label:not(.radiobutton-label) {
+  display    : inline-flex; /* or flex */
+  align-items: center;
+  gap        : 0.5rem;      /* space between the radio control and its text */
+  cursor     : pointer;
+}
+
+/* responsive */
+@media (max-width: 700px) {
+  #fingerspellblock {
+    flex-direction: column;
+    align-items   : center;
+  }
+
+  #fingerspell-container {
+    width          : 100%;
+    justify-content: center;
+  }
+}
+
+/* Responsive for narrow screens */
+@media (max-width: 480px) {
+  /* override desktop layout */
+  #fingerspellblock {
+    flex-direction: column;     /* stack image over grid */
+    align-items   : center;     /* center everything */
+  }
+
+  /* left: display area */
+  #handcontainer {
+    width          : 100%;
+    max-width      : 150px;
+    height         : 140px;
+    margin         : 0 auto;
+    display        : flex;
+    justify-content: center;
+  }
+
+  #handimage {
+    position        : relative;
+    height          : 120px;
+    width           : 150px;
+    background-color: #4b62ae;
+    border          : 2px solid black;
+    margin          : auto;
+  }
+
+  #mainimg {
+    position    : absolute;
+    top         : 21px;
+    left        : 22px;
+    width       : 96px;
+    height      : auto;
+    aspect-ratio: 4 / 3;
+    object-fit  : contain;
+  }
+
+  #fingerspell-container {
+    flex           : 1;
+    display        : flex;
+    justify-content: center;
+  }
+
+  #fingerspellgrid {
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+  }
+
+  #fingerspellgrid img {
+    width       : 55px;
+    height      : auto;
+    aspect-ratio: 4 / 3;
+  }
+
+  #letter-case-options {
+    gap: 10px;
+  }
+
+  .bottom-section {
+    margin-bottom: 3rem;   /* stop CC licence overlap */
+  }
+
+  #score-box {
+    margin-bottom: 1.5rem;
+  }
+}
+
+</style>
+{% endblock %}
+
+{% block fs_content %}
+<h5>Introduction to the Letters
+  <span id="letters-info"
+      tabindex="1"
+      class="ms-2 text-primary"
+      role="button"
+      data-bs-toggle="popover"
+      data-bs-trigger="focus"
+      data-bs-html="true"
+      data-bs-container="body"
+      title="Learning the letters">
+      ℹ️
+  </span>
+</h5>
+
+<div id="fingerspellblock">
+
+  <!-- display area -->
+  <div id="handcontainer">
+    <div id="handimage">
+      <img id="mainimg" src="{% static 'fs/letters/th_A.jpg' %}" alt="Finger-spelled letter A">
+    </div>
+  </div>
+
+  <!-- grid of clickable letters -->
+  <div id="fingerspell-container">
+    <div id="fingerspellgrid">
+      {% for letter, frames in letters.items %}
+        <div class="letter" data-letter="{{ letter }}" data-frames="{{ frames|join:',' }}">
+          <img id="id-{{ letter }}" data-letter="{{ letter }}"
+               src="{% static 'fs/letters/th_'|add:letter|add:frames.0|add:'.jpg' %}"
+               alt="{{ letter }}">
+          <span class="character">{{ letter|lower }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+<div id="letter-case-options" class="case-options">
+  <label class="radiobutton-label">Letter case:</label>
+  <label><input type="radio" name="letter-case" value="uppercase">Upper</label>
+  <label><input type="radio" name="letter-case" value="lowercase" checked>Lower</label>
+</div>
+{% endblock %}
+
+{% block fs_script %}
+<script>
+// Get all letter cells
+const letterCells = document.querySelectorAll('#fingerspellgrid .letter');
+const main        = document.getElementById('mainimg');
+
+// Get list of 'letter-case' radio buttons
+const letterCaseRadios = document.querySelectorAll('input[name="letter-case"]');
+
+// Get list of all the 'character' spans
+const characterSpans = document.querySelectorAll(".character");
+
+// Controller map for looping grid letters ('H' and 'J')
+const thumbnailAnimations = new Map();
+
+const frameDuration = 250;  // ms per frame
+const gapDuration   = 1000; // ms pause between loops
+
+function getSelectedLetterCase() {
+  const selectedRadio = document.querySelector('input[name="letter-case"]:checked');
+
+  if (selectedRadio) {
+    return selectedRadio.value;
+  } else {
+    return null; // No radio button is selected
+  }
+}
+
+// Function to update the case
+function updateAllLetterCase(value) {
+  characterSpans.forEach(span => {
+    if (value === "lowercase") {
+      span.textContent = span.textContent.toLowerCase();
+    } else {
+      span.textContent = span.textContent.toUpperCase();
+    }
+  });
+};
+
+letterCaseRadios.forEach(radio => {
+  radio.addEventListener("change", (event) => {
+    if (event.target.checked) {
+      updateAllLetterCase(event.target.value);
+    }
+  });
+});
+
+// If there are letters, pick one randomly
+if (letterCells.length > 0) {
+  const randomIndex = Math.floor(Math.random() * letterCells.length);
+  const randomCell  = letterCells[randomIndex];
+
+  // Highlight the random letter
+  randomCell.querySelector('img').classList.add('selected');
+
+  // Display its frame(s)
+  const letter = randomCell.dataset.letter;
+  const frames = randomCell.dataset.frames.split(',');
+  let index    = 0;
+
+  const showFrame = () => {
+    const suffix = frames[index] || "";
+    main.src     = `/static/fs/letters/th_${letter}${suffix}.jpg`;
+    main.alt     = `Finger-spelled letter ${letter}`;
+    index        = (index + 1) % frames.length;
+  };
+
+  // Animate if multiple frames
+  if (frames.length > 1) {
+    let frameInterval = setInterval(showFrame, 250);
+    setTimeout(() => clearInterval(frameInterval), 250 * frames.length);
+  }
+
+  // Always show first frame immediately
+  showFrame();
+}
+
+letterCells.forEach(cell => {
+  const img = cell.querySelector('img'); // find the image inside the div
+
+  cell.addEventListener('click', () => {
+    const letter = cell.dataset.letter;
+    const frames = cell.dataset.frames.split(',');
+    const main   = document.getElementById('mainimg');
+    let   index  = 0;
+
+    // Remove previous highlight
+    document.querySelectorAll('#fingerspellgrid img').forEach(img => img.classList.remove('selected'));
+    cell.querySelector('img').classList.add('selected');
+
+    const showFrame = () => {
+      const suffix = frames[index] || "";
+      main.src     = `/static/fs/letters/th_${letter}${suffix}.jpg`;
+      main.alt     = `FS letter ${letter}`;
+      index        = (index + 1) % frames.length;
+    };
+
+    // Animate if multiple frames
+    if (frames.length > 1) {
+      let frameInterval = setInterval(showFrame, 250);
+      setTimeout(() => clearInterval(frameInterval), 250 * frames.length);
+    }
+
+    // Always show first frame immediately
+    showFrame();
+  });
+});
+
+// Generic function to start a looping animation on a given <img>
+function startLoopingAnimation(imgElement, letter, frames, folder = "/static/fs/letters/") {
+  let index = 0;
+
+  const showFrame = () => {
+    const suffix   = frames[index] || "";
+    imgElement.src = `${folder}th_${letter}${suffix}.jpg`;
+    imgElement.alt = `Finger-spelled letter ${letter}`;
+    index          = (index + 1) % frames.length;
+  };
+
+  const loop = () => {
+    let interval = setInterval(() => {
+      showFrame();
+
+      if (index === 0) {
+        clearInterval(interval);
+
+        // Wait a gap then restart
+        const timeout = setTimeout(loop, gapDuration);
+        thumbnailAnimations.set(letter, { interval: null, timeout });
+      }
+    }, frameDuration);
+
+    thumbnailAnimations.set(letter, { interval });
+  };
+
+  // Kick it off
+  showFrame();
+  loop();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Start looping animations for 'H' and 'J'
+  ["H", "J"].forEach(letter => {
+    const cell = document.querySelector(`.letter[data-letter="${letter}"]`);
+
+    if (cell) {
+      const img    = cell.querySelector("img");
+      const frames = cell.dataset.frames.split(",");
+
+      if (frames.length > 1) {
+       startLoopingAnimation(img, letter, frames);
+      }
+    }
+  });
+
+  function makePopover(id, htmlText) {
+    new bootstrap.Popover(document.getElementById(id), {
+      content: htmlText,
+      html   : true
+    });
+  }
+
+  const lettersInfo = `
+    Select a letter in the grid to show it enlarged.
+  `;
+
+  makePopover("letters-info", lettersInfo);
+
+});
+
+</script>
+{% endblock %}

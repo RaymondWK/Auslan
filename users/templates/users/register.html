@@ -1,0 +1,55 @@
+<!--
+users/templates/users/register.html
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+-->
+
+{% extends "base/layout.html" %}
+{% load static %}
+
+{% block style %}
+    <link href="{% static 'users/styles.css' %}?v={{ 1 }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+    <h2>Register</h2>
+
+    {% if message %}
+        <div class="message-div">{{ message }}</div>
+    {% endif %}
+
+    <form action="{% url 'users:register' %}" method="post">
+        {% csrf_token %}
+
+        <input type="hidden" name="next" value="{{ request.GET.next|default:'/' }}">
+
+        <div class="form-group">
+            <input class="register-field" autofocus type="text" name="username" placeholder="Username" required>
+        </div>
+        <div class="form-group">
+            <input class="register-field" autofocus type="text" name="first-name" placeholder="First name" required>
+        </div>
+        <div class="form-group">
+            <input class="register-field" autofocus type="text" name="last-name" placeholder="Last name" required>
+        </div>
+        <div class="form-group">
+            <input class="register-field" type="email" name="email" placeholder="Email" required>
+        </div>
+        <div class="form-group">
+            <input class="register-field" type="password" name="password" placeholder="Password" required>
+        </div>
+        <div class="form-group">
+            <input class="register-field" type="password" name="confirmation" placeholder="Confirm Password" required>
+        </div>
+        <input class="btn btn-primary" type="submit" id="register-submit" value="Register">
+    </form>
+    <p>{{ request.GET.next }}</p>
+
+    <p>Already have an account?
+        {% if request.GET.next %}
+            <a href="{% url 'users:login' %}?next={{ request.GET.next }}">Login here</a>
+        {% else %}
+            <a href="{% url 'users:login' %}">Login here</a>
+        {% endif %}
+    </p>
+{% endblock %}

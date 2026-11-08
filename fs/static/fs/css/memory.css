@@ -1,0 +1,233 @@
+/*
+fs/static/fs/css/memory.css
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+*/
+
+:root {
+  --card-width     : 96px;                            /* default */
+  --card-height    : calc(var(--card-width) * 3 / 4); /* 192×144 => 4:3 */
+  --card-gap       : 10px;
+  --back-color     : #cfb53b;                         /* old-gold */
+  --matched-opacity: 0.25;
+  --old-gold       : #cfb53b;
+}
+
+h5 {
+  color: var(--old-gold);
+}
+
+.input-label,
+#current-turn-label,
+.stats-label {
+  font-weight: bold;
+}
+
+.computer-title {
+  font-weight: bold;
+  color      : blue;
+}
+
+.computer-level {
+  font-weight: bold;
+  color      : green;
+}
+
+#start-btn {
+  margin-left: 10px;
+  width      : 70px;
+}
+
+#current-turn {
+  margin-left: 10px;
+  color      : blue;
+}
+
+#test-image {
+  margin-bottom: 10px;
+}
+
+/* Grid container */
+.memory-grid {
+  display        : grid;
+  gap            : var(--card-gap);
+  justify-content: center;
+  align-items    : center;
+  margin         : 12px 0;
+}
+
+/* Card wrapper */
+.memory-card {
+  width      : var(--card-width);
+  height     : var(--card-height);
+  perspective: 900px;
+  position   : relative;
+  user-select: none;
+}
+
+/* Inner 3D container */
+.card-inner {
+  width          : var(--card-width);
+  height         : var(--card-height);
+  position       : absolute;
+  transform-style: preserve-3d;
+  transition     : transform 420ms cubic-bezier(.2,.9,.3,1);
+  border-radius  : 0px;
+  box-shadow     : 0 4px 8px rgba(0,0,0,.12);
+}
+
+/* Flipped state */
+.memory-card.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+/* Faces */
+.card-face {
+  width              : var(--card-width);
+  height             : var(--card-height);
+  position           : absolute;
+  inset              : 0;
+  backface-visibility: hidden;
+  border-radius      : 0px;
+  display            : flex;
+  align-items        : center;
+  justify-content    : center;
+  overflow           : hidden;
+}
+
+/* Back face (face-down) */
+.card-back {
+  width          : var(--card-width);
+  height         : var(--card-height);
+  background     : linear-gradient(180deg,#e5c96b,#cfa93c);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  font-weight    : bold;
+  font-size      : 1.1rem;
+}
+
+/* Front face (image) — rotated 180deg so it shows when inner is rotated */
+.card-front {
+  width     : var(--card-width);
+  height    : var(--card-height);
+  transform : rotateY(180deg);
+  background: #fff;
+}
+
+/* image and letter */
+.card-front img {
+  width  : var(--card-width);
+  height : var(--card-height);
+  display: block;
+}
+
+/* Matched styling */
+.memory-card.matched {
+  pointer-events: none;
+  opacity       : var(--matched-opacity);
+  transform     : scale(.98);
+}
+
+.memory-grid {
+  display       : grid;
+  grid-auto-rows: auto;
+}
+
+.memory-grid {
+  width: max-content !important;
+}
+
+/* Auto-generate column classes: Ensure they all become grid containers */
+.memory-grid[class*="cols-"] {
+  display : grid;
+}
+
+.memory-grid.cols-1  { grid-template-columns: repeat(1,  var(--card-width)); }
+.memory-grid.cols-2  { grid-template-columns: repeat(2,  var(--card-width)); }
+.memory-grid.cols-3  { grid-template-columns: repeat(3,  var(--card-width)); }
+.memory-grid.cols-4  { grid-template-columns: repeat(4,  var(--card-width)); }
+.memory-grid.cols-5  { grid-template-columns: repeat(5,  var(--card-width)); }
+.memory-grid.cols-6  { grid-template-columns: repeat(6,  var(--card-width)); }
+.memory-grid.cols-7  { grid-template-columns: repeat(7,  var(--card-width)); }
+.memory-grid.cols-8  { grid-template-columns: repeat(8,  var(--card-width)); }
+.memory-grid.cols-9  { grid-template-columns: repeat(9,  var(--card-width)); }
+.memory-grid.cols-10 { grid-template-columns: repeat(10, var(--card-width)); }
+.memory-grid.cols-11 { grid-template-columns: repeat(11, var(--card-width)); }
+.memory-grid.cols-12 { grid-template-columns: repeat(12, var(--card-width)); }
+.memory-grid.cols-13 { grid-template-columns: repeat(13, var(--card-width)); }
+.memory-grid.cols-14 { grid-template-columns: repeat(14, var(--card-width)); }
+.memory-grid.cols-15 { grid-template-columns: repeat(15, var(--card-width)); }
+.memory-grid.cols-16 { grid-template-columns: repeat(16, var(--card-width)); }
+.memory-grid.cols-17 { grid-template-columns: repeat(17, var(--card-width)); }
+.memory-grid.cols-18 { grid-template-columns: repeat(18, var(--card-width)); }
+.memory-grid.cols-19 { grid-template-columns: repeat(19, var(--card-width)); }
+.memory-grid.cols-20 { grid-template-columns: repeat(20, var(--card-width)); }
+.memory-grid.cols-21 { grid-template-columns: repeat(21, var(--card-width)); }
+.memory-grid.cols-22 { grid-template-columns: repeat(22, var(--card-width)); }
+.memory-grid.cols-23 { grid-template-columns: repeat(23, var(--card-width)); }
+.memory-grid.cols-24 { grid-template-columns: repeat(24, var(--card-width)); }
+.memory-grid.cols-25 { grid-template-columns: repeat(25, var(--card-width)); }
+.memory-grid.cols-26 { grid-template-columns: repeat(26, var(--card-width)); }
+
+/* Small visual feedback when auto-clamping etc. */
+.clamped {
+  box-shadow: 0 0 0 3px rgba(255,165,0,.25);
+}
+
+#timer-settings {
+  disabled: true;
+}
+
+/* High-score highlight */
+.highlight {
+  animation: flashHighlight 3s ease-out 1;
+}
+
+@keyframes flashHighlight {
+  0%, 100% {
+    background-color: transparent;
+  }
+
+  /* Flash on */
+  10%, 30%, 50%, 70%, 90% {
+    background-color: var(--old-gold);
+    transform       : scale(1.07);
+  }
+
+  /* Flash off */
+  20%, 40%, 60%, 80% {
+    background-color: transparent;
+    transform       : scale(1.0);
+  }
+}
+
+#test-image {
+  width       : 64px;
+  height      : auto;
+  aspect-ratio: 4 / 3;
+}
+
+/* Make the up/down buttons appear (hopefully) */
+
+/* For Chrome, Safari, Edge, and Opera (WebKit browsers) */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity : 1;
+  /* Adjust position and height for better appearance */
+  position: absolute;
+  top     : 0;
+  right   : 0;
+  height  : 100%;
+}
+
+/* For Firefox */
+/* Firefox displays the arrows by default, but this ensures no other rule hides them */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+@media (max-width: 576px) {
+  #pair-count {
+    width: 4ch;
+  }
+}

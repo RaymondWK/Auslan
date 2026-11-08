@@ -1,0 +1,43 @@
+<!--
+users/templates/users/login.html
+Copyright © 2025 Dr. Raymond William Kennington Ph.D.
+-->
+
+{% extends "base/layout.html" %}
+{% load static %}
+
+{% block style %}
+    <link href="{% static 'users/styles.css' %}?v={{ 1 }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+    <h2>Login</h2>
+
+    {% if message %}
+        <div class="message-div">{{ message }}</div>
+    {% endif %}
+
+    <form action="{% url 'users:login' %}" method="post">
+        {% csrf_token %}
+
+        <input type="hidden" name="next" value="{{  request.GET.next|default:'/' }}">
+
+        <div class="form-group">
+            <input class="login-field" autofocus type="text" name="username" id="login-username" placeholder="Username">
+        </div>
+        <div class="form-group">
+            <input class="login-field" type="password" name="password" id="login-password" placeholder="Password">
+        </div>
+
+        <input class="btn btn-primary" type="submit" id="login-submit" value="Login">
+    </form>
+
+    <p>Don’t have an account?
+        {% if request.GET.next %}
+            <a href="{% url 'users:register' %}?next={{ request.GET.next }}">Register here</a>
+        {% else %}
+            <a href="{% url 'users:register' %}">Register here</a>
+        {% endif %}
+    </p>
+{% endblock %}
